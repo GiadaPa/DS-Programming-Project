@@ -2,7 +2,7 @@
 Project for the programming course (Master's Degree in Data Science)
 
 
-# @GiadaPa GIADA PALMA - VR471280
+# GIADA PALMA - VR471280
 
 
 DATASET URL 

@@ -1,0 +1,23 @@
+FROM line 18: we can see that the athlete_events_ds has 15 columns and 271.116 entries. 
+    Used datatypes are integer and floats for numerical information and object for textual information.
+
+FROM line 19: we can see that the noc_regions_ds has 3 columns and 230 entries. 
+    Information is only textual therefore the datatype used is object.
+
+
+FROM line 22 and 23: we see that there are a lot of empty rows for the medals.
+FROM line 35 and 36: we can see that some regions have some additional information stored in the notes column.
+    e.g. the Yemen region has the same name for three different NOC.
+        224  YAR          Yemen             North Yemen
+        225  YEM          Yemen                     NaN
+        226  YMD          Yemen             South Yemen
+
+
+FROM line 42 and 43 we see that there are the following null values in the columns of the athlete_events
+        Age         9474
+        Height     60171
+        Weight     62875
+        Medal     231333
+    and in the columns of the noc_regions
+        region      3
+        notes     209

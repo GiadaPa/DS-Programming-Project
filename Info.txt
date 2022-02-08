@@ -7,7 +7,7 @@ FROM line 19: we can see that the noc_regions_ds has 3 columns and 230 entries.
 
 FROM line 22 and 23: we see that there are a lot of empty rows for the medals.
 FROM line 35 and 36: we can see that some regions have some additional information stored in the notes column.
-    e.g. the Yemen region has the same name for three different NOC.
+    e.g. the Yemen region has the same name for three different National Olympic Commitees.
         224  YAR          Yemen             North Yemen
         225  YEM          Yemen                     NaN
         226  YMD          Yemen             South Yemen
@@ -21,3 +21,5 @@ FROM line 42 and 43 we see that there are the following null values in the colum
     and in the columns of the noc_regions
         region      3
         notes     209
+    We can see that many rows from the medal column are empty, a logical explanation will be that the athlete did not win any.
+    So it sounds reasonable to replace the NaN value with a textual value for example "NoMedal"

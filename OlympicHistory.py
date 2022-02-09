@@ -9,6 +9,8 @@
 ### Import of needed libraries
 import pandas as pd
 import numpy as np
+import seaborn as sns
+from matplotlib import pyplot as plt
 
 
 ### Loading the .csv files containing data
@@ -234,3 +236,41 @@ olympic_history_ds = olympic_history_ds.loc[(olympic_history_ds['Year'] > 1960) 
 
 #################################################################################################################################
 ################################################ DATA ANALYSIS AND VISUALISATION ################################################
+
+
+################################################## AGE DISTRIBUTION ##################################################
+#removing NaN values from the ds
+olympic_history_ds = olympic_history_ds[np.isfinite(olympic_history_ds['Age'])]
+"""
+# AGE DISTRIBUTION
+plt.figure(figsize=(5, 10))
+sns.countplot(olympic_history_ds['Age'])
+plt.title('Age distribution', fontsize = 18)
+
+# AGE DISTRIBUTION MALE AND FEMALE BY YEAR
+fig, ax = plt.subplots(figsize=(5,10))
+a = sns.boxplot(x='Year', y='Age', hue='Sex', palette={'M':'blue', 'F':'pink'}, data=olympic_history_ds, ax=ax)      
+ax.set_xlabel('Year', size=14)
+ax.set_ylabel('Age', size=14)
+ax.set_title('Age distribution by year', fontsize=18)
+"""
+
+# Who is the oldest athlete?
+pd.set_option('max_columns', 18)
+#print(olympic_history_ds[olympic_history_ds['Age'] == olympic_history_ds['Age'].max()].drop_duplicates(subset=['Name']))
+
+
+# And who's the youngest?
+pd.set_option('max_columns', 18)
+#print(olympic_history_ds[olympic_history_ds['Age'] == olympic_history_ds['Age'].min()].drop_duplicates(subset=['Name']))
+
+
+# The oldest athlete is an athlete that practices equestrianism.
+# Lets see which sport do elder athlete practice
+olympic_history_ds_age = olympic_history_ds['Sport'][olympic_history_ds['Age'] > 60]
+
+
+plt.figure(figsize=(5, 10))
+sns.countplot(x=olympic_history_ds_age, data=olympic_history_ds, order = olympic_history_ds_age.value_counts().index)
+plt.title('Athletes Over 60')
+plt.show()

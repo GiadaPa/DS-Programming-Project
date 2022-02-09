@@ -27,9 +27,9 @@ DATA WRANGLING
 
 
 DATA ANALYSIS
-    1. Age distributions
+    1. Age distribution, age distribution by year, elder athletes's practiced sports distribution
     2. Gender distribution per sport and female partecipation history
-    3. Partecipation frequency of Nations
+    3. Partecipation frequency of nations
 
 PREDICTION
    1. Which sport is the most suitable for an athlete based on weight and age?

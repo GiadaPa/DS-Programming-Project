@@ -82,7 +82,7 @@ print(ath_events_ds['Weight'].describe())
 print(ath_events_ds['Height'].describe())
 
 # INFO BY GENDER
-print(ath_events_ds[["Sex", "Age", "Weight", "Height"]].groupby("Sex").mean())
+print(ath_events_ds[['Sex', "Age', "Weight', "Height']].groupby('Sex').mean())
 """
 
 
@@ -238,9 +238,11 @@ olympic_history_ds = olympic_history_ds.loc[(olympic_history_ds['Year'] > 1960) 
 ################################################ DATA ANALYSIS AND VISUALISATION ################################################
 
 
+
 ################################################## AGE DISTRIBUTION ##################################################
 #removing NaN values from the ds
 olympic_history_ds = olympic_history_ds[np.isfinite(olympic_history_ds['Age'])]
+
 """
 # AGE DISTRIBUTION
 plt.figure(figsize=(5, 10))
@@ -253,7 +255,7 @@ a = sns.boxplot(x='Year', y='Age', hue='Sex', palette={'M':'blue', 'F':'pink'}, 
 ax.set_xlabel('Year', size=14)
 ax.set_ylabel('Age', size=14)
 ax.set_title('Age distribution by year', fontsize=18)
-"""
+
 
 # Who is the oldest athlete?
 pd.set_option('max_columns', 18)
@@ -269,8 +271,60 @@ pd.set_option('max_columns', 18)
 # Lets see which sport do elder athlete practice
 olympic_history_ds_age = olympic_history_ds['Sport'][olympic_history_ds['Age'] > 60]
 
-
 plt.figure(figsize=(5, 10))
-sns.countplot(x=olympic_history_ds_age, data=olympic_history_ds, order = olympic_history_ds_age.value_counts().index)
+sns.countplot(x=olympic_history_ds_age, data=olympic_history_ds, order=olympic_history_ds_age.value_counts().index)
 plt.title('Athletes Over 60')
+
+
+# We want to analyse the mean age of athletes who won a medal
+olympic_history_ds_medalists_age = olympic_history_ds.pivot_table(olympic_history_ds, index=['Year','Medal'], aggfunc=np.mean).reset_index()[['Year','Medal','Age']]
+olympic_history_ds_medalists_age = olympic_history_ds_medalists_age.pivot("Medal", "Year", "Age")
+olympic_history_ds_medalists_age = olympic_history_ds_medalists_age.reindex(["Gold","Silver","Bronze"])
+
+f, ax = plt.subplots(figsize=(20, 3))
+sns.heatmap(olympic_history_ds_medalists_age, annot=True, linewidths=0.05, ax=ax)
+ax.set_xlabel('Year')
+ax.set_ylabel('Medal')
+ax.set_title('Mean age of medalists')
 plt.show()
+"""
+
+
+
+################################################## GENDER DISTRIBUTION ##################################################
+
+# Distribution of athletes by gender
+olympic_history_ds_gender = olympic_history_ds.loc[:,['Year', 'ID', 'Sex']].drop_duplicates().groupby(['Year','Sex']).size().reset_index()
+olympic_history_ds_gender.columns = ['Year','Sex','Count']
+"""
+plt.figure(figsize=(10,10))
+sns.barplot(x='Year', y='Count', data=olympic_history_ds_gender, hue='Sex')   
+plt.title('Number of Female & Male Athletes by Years') 
+plt.show()
+"""
+
+
+########################## WOMEN ANALYSIS ##########################
+
+# We create a subset of the ds with only women
+olympic_history_ds_women = olympic_history_ds[olympic_history_ds.Sex == 'F']
+#print(olympic_history_ds_women.head())
+
+# We want to see the 20 most practiced sports by women
+olympic_history_ds_women_sport = olympic_history_ds_women['Sport']
+"""
+plt.figure(figsize=(15, 10))
+sns.countplot(x=olympic_history_ds_women_sport, data=olympic_history_ds_women_sport, order=olympic_history_ds_women_sport.value_counts()[:20].index)
+plt.xticks(rotation=45)
+plt.title('Most practised sport by women')
+plt.show()
+"""
+
+# I am interested in knowing how many women have practiced weightlifting in the history of the olympic games
+olympic_history_ds_women_wl = olympic_history_ds_women[olympic_history_ds_women.Sport == 'Weightlifting'].drop_duplicates(subset=['Name']).value_counts().to_frame()
+print(olympic_history_ds_women.drop_duplicates(subset=['Name']))
+print(olympic_history_ds_women_wl)
+
+
+
+################################################## PARTICIPATION FREQUENCY OF NATIONS ##################################################

@@ -322,9 +322,111 @@ plt.show()
 
 # I am interested in knowing how many women have practiced weightlifting in the history of the olympic games
 olympic_history_ds_women_wl = olympic_history_ds_women[olympic_history_ds_women.Sport == 'Weightlifting'].drop_duplicates(subset=['Name']).value_counts().to_frame()
-print(olympic_history_ds_women.drop_duplicates(subset=['Name']))
-print(olympic_history_ds_women_wl)
+#print(olympic_history_ds_women.drop_duplicates(subset=['Name']))
+#print(olympic_history_ds_women_wl)
 
 
 
-################################################## PARTICIPATION FREQUENCY OF NATIONS ##################################################
+################################################## MEDAL DISTRIBUTION AND GDP CORRELATION ##################################################
+
+########################## MEDAGLIERE ##########################
+# Create indexing column counting medal or not
+olympic_history_ds['Medal_i'] = np.where(olympic_history_ds.loc[:,'Medal'] == 'NoMedal', 0, 1)
+#print(olympic_history_ds['Medal_i'])
+
+# From the ds we know if an athlete wins a medal or not. But thinking about team events, each athlete receives a medal. 
+# So the total sum would be incorrect if we think about a sum of medals won by a nation
+# We have to identify team events and single events
+team_medal = pd.pivot_table(olympic_history_ds, index = ['Team', 'Year', 'Event'], columns = 'Medal', values = 'Medal_i', aggfunc = 'sum', fill_value = 0).drop('NoMedal', axis = 1).reset_index()
+
+team_medal = team_medal.loc[team_medal['Gold'] > 1, :]
+team_event = team_medal['Event'].unique()
+#print(team_event)
+
+# Now we have to add a column that identifies if the event is team or single so that when we sum the medals by nation we have the correct counting.
+# Create a mask for when an event is a team event, otherwise identifies it as single event
+team_event_mask = olympic_history_ds['Event'].map(lambda x: x in team_event)
+single_event_mask = [not i for i in team_event_mask]
+
+# Create a mask for when an entry in medal_i is 1, i.e won a medal
+medal_mask = olympic_history_ds['Medal_i'] == 1
+
+# Identify with 1 if it is a team event or a single event
+olympic_history_ds['T_event'] = np.where(team_event_mask & medal_mask, 1, 0)
+olympic_history_ds['S_event'] = np.where(single_event_mask & medal_mask, 1, 0)
+
+# Add a column that contains single or team events
+olympic_history_ds['Event_cat'] = olympic_history_ds['S_event'] + olympic_history_ds['T_event']
+#print(olympic_history_ds.head())
+
+#Groupby year, team, event and medal and then count the medal won
+olympic_history_ds_nation = olympic_history_ds.groupby(['Year', 'Team', 'Event', 'Medal'])[['Medal_i', 'Event_cat']].agg('sum').reset_index()
+olympic_history_ds_nation['Medal_i'] = olympic_history_ds_nation['Medal_i']/olympic_history_ds_nation['Event_cat']
+#pd.set_option('max_columns', 18)
+#print(olympic_history_ds_nation.head())
+
+# Groupby year and team to create a medal recap
+medagliere = olympic_history_ds_nation.groupby(['Year','Team'])['Medal_i'].agg('sum').reset_index()
+
+# Create a pivoted ds to show the top 10 nations by medal won by year
+medagliere_piv = pd.pivot_table(medagliere, index = 'Team', columns = 'Year', values = 'Medal_i', aggfunc = 'sum', margins = True)
+top10_nations = medagliere_piv.sort_values('All', ascending = False).head(10)
+#print(top10_nations)
+
+# Create a list of the 6 best nations by medals won
+top6_nations = ['USA', 'Russia', 'Germany', 'China', 'France', 'Italy']
+
+#Create a pivoted ds to show the number of medals won by nation by year in a linechart
+medagliere_by_year_piv = pd.pivot_table(medagliere, index = 'Year', columns = 'Team', values = 'Medal_i', aggfunc = 'sum')[top6_nations]
+"""
+medagliere_by_year_piv.plot(linestyle = '-', figsize = (10,8), linewidth = 1)
+plt.xlabel('Year')
+plt.ylabel('Medals')
+#plt.show()
+"""
+# Create a mask to match 6 best nations
+top6_nations_mask = olympic_history_ds_nation['Team'].map(lambda x: x in top6_nations)
+
+# Create a pivoted ds to calculate sum of gold, silver and bronze medals for each nation
+medagliere_medals = pd.pivot_table(olympic_history_ds_nation[top6_nations_mask], index = ['Team'], columns = 'Medal', values = 'Medal_i', aggfunc = 'sum', fill_value = 0).drop('NoMedal', axis = 1)
+
+# Order medals to be shown on the barchart
+medagliere_medals = medagliere_medals.loc[:, ['Gold', 'Silver', 'Bronze']]
+"""
+medagliere_medals.plot(kind = 'bar', stacked = True, figsize = (8,6), rot = 0, color=['gold', 'silver', 'brown'])
+plt.xlabel('Nation')
+plt.ylabel('Medals')
+plt.show()
+"""
+
+
+########################## GDP ##########################
+# I suppose the number of medals won by the 6 best nations is strictly related to the GDP of that nation
+# So for example a very poor nation like Zimambwe has won no medal at all
+# To verify my supposition:
+
+# I create a ds filtering on year team and gdp and removing duplicates
+year_team_gdp = olympic_history_ds.loc[:, ['Year', 'Team', 'GDP']].drop_duplicates()
+
+# I merge the medagliere ds with the newly created the line above with a left join to keep all values from the medagliere ds
+medagliere_gdp = medagliere.merge(year_team_gdp, left_on = ['Year', 'Team'], right_on = ['Year', 'Team'], how = 'left')
+
+# Create a medal mask that should be 1
+medal_i_mask = medagliere_gdp['Medal_i'] > 0
+
+# calculate the correlation of GDP and the medal won
+correlation = medagliere_gdp.loc[medal_i_mask, ['GDP', 'Medal_i']].corr()['Medal_i'][0]
+# This is a quite high correlation
+#print(correlation)
+"""
+# Let's plot on the chart the GDP on the x axis and the medals on the y
+plt.plot(medagliere_gdp.loc[medal_i_mask, 'GDP'],  medagliere_gdp.loc[medal_i_mask, 'Medal_i'], linestyle='none', marker = 'o', alpha = 0.4)
+plt.xlabel('GDP')
+plt.ylabel('Medals')
+plt.show()
+"""
+
+
+
+#################################################################################################################################
+################################################## SPORT PREDICTION BASED ON WEIGHT AND HEIGHT ##################################################

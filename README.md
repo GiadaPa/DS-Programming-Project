@@ -29,8 +29,7 @@ DATA WRANGLING
 DATA ANALYSIS
     1. Age distribution, age distribution by year, elder athletes's practiced sports distribution
     2. Gender distribution per sport and female partecipation history
-    3. Partecipation frequency of nations
+    3. Medal distribution and GDP correlation
 
 PREDICTION
-   1. Which sport is the most suitable for an athlete based on weight and age?
-   2. Which are the top 5 favourite athletes to win a medal in weightlifting next year?
+   1. Which sport is the most suitable for an athlete based on height, weight and age?

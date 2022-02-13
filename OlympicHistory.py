@@ -1,17 +1,14 @@
 
-
-
-
 ####################################################################################################################
 ####################################### INITAL SETUP (LIBRARIES AND IMPORTS) #######################################
-
 
 ### Import of needed libraries
 import pandas as pd
 import numpy as np
 import seaborn as sns
 from matplotlib import pyplot as plt
-
+from PIL import Image
+import streamlit as st
 
 ### Loading the .csv files containing data
 ath_events_ds = pd.read_csv (r'Datasets\athlete_events.csv')
@@ -27,48 +24,47 @@ population_ds = pd.read_csv(r'Datasets\population.csv')
 #print(population_ds)
 
 
+#--------------------------------------------------------------------------------------------------------------------------------
+# STREAMLIT ---------------------------------------------------------------------------------------------------------------------
+img = Image.open("olympics.jpg")
+img_h = Image.open("olympics-header.jpg")
+
+st.set_page_config(page_title="Olympic Games EDA - Giada Palma", page_icon=img)
+st.markdown(""" 
+    <style>
+        #MainMenu {visibility: hidden;}
+        footer {visibility: hidden;}
+    </style> """, 
+    unsafe_allow_html=True
+)
+st.image(img_h)
+st.title("THE OLYMPIC GAMES")
+
+
+rad_navigation = st.sidebar.radio("Navigation", ["INITIAL SETUP","DATA EXPLORATION", "DATA WRANGLING", "DATA ANALYSIS", "PREDICTION"])
+
+if rad_navigation == "INITIAL SETUP":
+    st.header("INITIAL SETUP")
+    st.text("As first step, for the implementation of this project, I have imported the needed libraries and the .csv files containing the data")
+    st.code('''import pandas as pd    
+import numpy as np
+import seaborn as sns
+from matplotlib import pyplot as plt''', language="python") 
+    st.write("The dataset of interest are the following:  \n* Olympics History and NOC [link](https://www.kaggle.com/heesoo37/120-years-of-olympic-history-athletes-and-results)  \n* GDP [link](https://www.kaggle.com/chadalee/country-wise-gdp-data)  \n* Population [link](https://www.kaggle.com/centurion1986/countries-population)")   
+    
+    st.code('''
+ath_events_ds = pd.read_csv (r'Datasets\\athlete_events.csv')
+noc_regions_ds = pd.read_csv(r'Datasets\\noc_regions.csv')
+gdp_ds = pd.read_csv(r'Datasets\gdp.csv')
+population_ds = pd.read_csv(r'Datasets\population.csv')
+    ''')
+#--------------------------------------------------------------------------------------------------------------------------------
 
 
 ####################################################################################################################
 ################################################# DATA EXPLORATION #################################################
-
-
-### Getting technical information 
-"""
-print(ath_events_ds.info())
-print(noc_regions_ds.info())
-print(gdp_ds.info())
-print(population_ds.info())
-"""
-
-
-### Printing the first and last 20 rows of the dataset to understand content
-"""
-print(ath_events_ds.head(20))
-print(ath_events_ds.tail(20))
-
-print(noc_regions_ds.head(20))
-print(noc_regions_ds.tail(20))
-
-print(gdp_ds.head(20))
-print(gdp_ds.tail(20))
-
-print(population_ds.head(20))
-print(population_ds.tail(20))
-"""
-
-
-### Counting the null values
-"""
-print(ath_events_ds.isnull().sum())
-print(noc_regions_ds.isnull().sum())
-print(gdp_ds.isnull().sum())
-print(population_ds.isnull().sum())
-"""
-
-
 ### Basic statistics
-"""
+'''
 # AGE INFO
 print(ath_events_ds['Age'].describe())
 
@@ -80,13 +76,56 @@ print(ath_events_ds['Weight'].describe())
 
 # HEIGHT
 print(ath_events_ds['Height'].describe())
+'''
 
-# INFO BY GENDER
-print(ath_events_ds[['Sex', "Age', "Weight', "Height']].groupby('Sex').mean())
-"""
+### Counting the null values
+def show_nulls(df):
+    nulls = df.isnull().sum()
+    return nulls
+
+ath_mean = ath_events_ds[['Sex', 'Age', 'Weight', 'Height']].groupby('Sex').mean()
+
+correlation = ath_events_ds.corr()
+fig, ax = plt.subplots(figsize=(10,6))
+ax = sns.heatmap(data=correlation, cmap="YlGnBu", annot=True, ax=ax)
 
 
 
+#--------------------------------------------------------------------------------------------------------------------------------
+# STREAMLIT ---------------------------------------------------------------------------------------------------------------------
+if rad_navigation == "DATA EXPLORATION":
+    st.header("DATA EXPLORATION")
+    st.text("As second step, I have explored the datasets previously imported to find some correaltion, some unexpected info and NaN values.")
+    option = st.selectbox(
+        'Select wich datset to view',
+        ('Athlete', 'NOC', 'GDP', 'Population'))
+    st.write('You are visualising data from the dataset:', option)
+    if option == 'Athlete':
+        st.write(ath_events_ds)        
+        st.subheader("NaN VALUES")
+        st.text("Let's see if there are some NaN entries")
+        st.write(show_nulls(ath_events_ds))
+        st.text("There are strange NaN values in the medal column. I suppose this is due to the fact that not any athlete wins a medal.")   
+        st.subheader("MEAN VALUES")
+        st.text("  \nLet's see the average values for height, weight and age of athletes grouped by gender")
+        st.write(ath_mean)
+        st.subheader("CORRELATION")
+        st.text("Let's see correlation in the data")
+        st.pyplot(fig)
+        st.text("There is a strong correlation between height and weight (equals to 0.8) and a discrete correlation between weight and age (equals to 0.21).")
+    if option == 'NOC':
+        st.write(noc_regions_ds)
+        st.subheader("NaN VALUES")
+        st.write(show_nulls(noc_regions_ds))
+    if option == 'GDP':
+        st.write(gdp_ds)
+        st.subheader("NaN VALUES")
+        st.write(show_nulls(gdp_ds))
+    if option == 'Population':
+        st.write(population_ds)
+        st.subheader("NaN VALUES")
+        st.write(show_nulls(population_ds))
+#--------------------------------------------------------------------------------------------------------------------------------
 
 ####################################################################################################################
 ################################################## DATA WRANGLING ##################################################
@@ -95,7 +134,6 @@ print(ath_events_ds[['Sex', "Age', "Weight', "Height']].groupby('Sex').mean())
 
 ################################################## ATHLETE_EVENTS ##################################################
 ### Why does the medal column have NaN values?
-
 # Since not every athlete participating at one competition wins a medal, many rows were left empty.
 # It is more readable to replace the NaN of the medal column with some explicvative text like 'NoMedal'
 ath_events_ds['Medal'] = ath_events_ds['Medal'].replace(np.nan, 'NoMedal')
@@ -105,7 +143,6 @@ ath_events_ds['Medal'] = ath_events_ds['Medal'].replace(np.nan, 'NoMedal')
 
 ################################################## NOC_REGIONS ##################################################
 ### Are all NOC (National Olympic Comittees) related to a unique team?
-
 # Looking at the NOC dataset there's the notes column which seems pretty useless
 noc_regions_ds.drop('notes', axis=1, inplace = True)
 
@@ -191,15 +228,11 @@ gdp_ds.drop(['Indicator Name', 'Indicator Code'], axis = 1, inplace = True)
 gdp_ds = pd.melt(gdp_ds, id_vars = ['Country Name', 'Country Code'], var_name = 'Year', value_name = 'GDP')
 gdp_ds['Year'] = pd.to_numeric(gdp_ds['Year'])
 
-olympic_history_ds = ath_events_ds_merge_country_pop.merge(gdp_ds,
-                                            left_on = ['Country Code', 'Year'],
-                                            right_on= ['Country Code', 'Year'],
-                                            how = 'left')
+olympic_history_ds = ath_events_ds_merge_country_pop.merge(gdp_ds, left_on = ['Country Code', 'Year'], right_on= ['Country Code', 'Year'], how = 'left')
 #print(olympic_history_ds.head())
 
 olympic_history_ds.drop('Country Name', axis = 1, inplace = True)
 #print(olympic_history_ds.head())
-
 
 # Country code, population and gdp have a lot of null values.
 #print(olympic_history_ds.isnull().sum())
@@ -223,7 +256,7 @@ print(checkYearDESC(ath_events_ds))
 """
 
 # So lets filter out 
-olympic_history_ds = olympic_history_ds.loc[(olympic_history_ds['Year'] > 1960) & (olympic_history_ds['Year'] < 2017), :]
+olympic_history_ds = olympic_history_ds.loc[(olympic_history_ds['Year'] > 1960) & (olympic_history_ds['Year'] < 2016), :]
 #print(olympic_history_ds.isnull().sum())
 #
 
@@ -231,6 +264,57 @@ olympic_history_ds = olympic_history_ds.loc[(olympic_history_ds['Year'] > 1960) 
 # Finally we have a complete ds with all info needed to perform some interesting analysis and prediction!
 ##
 
+
+#--------------------------------------------------------------------------------------------------------------------------------
+# STREAMLIT ---------------------------------------------------------------------------------------------------------------------
+if rad_navigation == "DATA WRANGLING":
+    st.header("DATA WRANGLING")
+    st.subheader("As third step, I have performed some data cleansing on all the datasets and then combined them all together in a single one.")
+    st.subheader("WRANGLING ON ATHLETE_EVENTS_DS")
+    st.text("I have decided to replace the NaN values of the medal column with a text saying \"NoMedal\"")
+    st.code('''ath_events_ds['Medal'] = ath_events_ds['Medal'].replace(np.nan, 'NoMedal')''')
+    st.subheader("WRANGLING ON NOC_DS")
+    st.text("Firstly, I have removed the notes column, which contains many NaN values and seems useless.")
+    st.code('''noc_regions_ds.drop('notes', axis=1, inplace = True)''')    
+    st.text("  \nSecondly, I want to check if there is a unique Team for each NOC.  \nTo do this I have removed duplicate values, and checked how many teams are related to a NOC.")
+    st.code('''check_NOC_unique = check_NOC.drop_duplicates()
+check_NOC_unique['Team'].value_counts()''')
+    st.text("  \nThirdly, I have merged the ath_event_ds with the noc_regions to create unique relations between team and NOC.")
+    st.code('''ath_events_ds_merge = ath_events_ds.merge(noc_regions_ds, left_on = 'NOC', right_on = 'NOC', how = 'left')''')
+    st.text("  \nLet's check if there are still some NOC that do not match any Team in the newly reated ds.")
+    st.write(ath_events_ds_merge.loc[ath_events_ds_merge_is_null, ['NOC', 'Team']].drop_duplicates())
+    st.text("  \nI will add them manually in the ds.")
+    st.code('''ath_events_ds_merge['region'] = np.where(ath_events_ds_merge['NOC']=='SGP', 'Singapore', ath_events_ds_merge['region'])
+ath_events_ds_merge['region'] = np.where(ath_events_ds_merge['NOC']=='ROT', 'Refugee Olympic Athletes', ath_events_ds_merge['region'])
+ath_events_ds_merge['region'] = np.where(ath_events_ds_merge['NOC']=='UNK', 'Unknown', ath_events_ds_merge['region'])
+ath_events_ds_merge['region'] = np.where(ath_events_ds_merge['NOC']=='TUV', 'Tuvalu', ath_events_ds_merge['region'])
+
+ath_events_ds_merge.drop('Team', axis = 1, inplace = True)
+ath_events_ds_merge.rename(columns = {'region': 'Team'}, inplace = True)''')
+    st.text("  \nCheck the ds after the first two \"wrangling\" steps.")
+    st.write(ath_events_ds_merge)
+    st.subheader("WRANGLING ON POPULATION_DS")
+    st.text("Firstly, I have removed the useless Indicator Name and Code columns. Then I have performed an unpivoting operation to make the years column become row values.")
+    st.code('''population_ds.drop(['Indicator Name', 'Indicator Code'], axis = 1, inplace = True)
+population_ds = pd.melt(population_ds, id_vars = ['Country', 'Country Code'], var_name = 'Year', value_name = 'Population')''')
+    st.text("  \nSecondly, I have merged the previously obtained ds with this one using the Country column as key. And then merged the result ds again with itself on Country and Year column ")
+    st.code('''ath_events_ds_merge_country = ath_events_ds_merge.merge(population_ds[['Country', 'Country Code']].drop_duplicates(), left_on = 'Team', right_on = 'Country', how = 'left')''')
+    st.text("  \nLet's check the result.")
+    st.write(ath_events_ds_merge_country_pop)
+    st.subheader("WRANGLING ON GDP_DS")
+    st.text("Firstly, I have performed the same steps I did with the population_ds.")
+    st.code('''gdp_ds.drop(['Indicator Name', 'Indicator Code'], axis = 1, inplace = True)
+gdp_ds = pd.melt(gdp_ds, id_vars = ['Country Name', 'Country Code'], var_name = 'Year', value_name = 'GDP')
+gdp_ds['Year'] = pd.to_numeric(gdp_ds['Year'])
+
+olympic_history_ds = ath_events_ds_merge_country_pop.merge(gdp_ds, left_on = ['Country Code', 'Year'], right_on= ['Country Code', 'Year'], how = 'left')''')
+    st.text("  \nSecondly, by checking the ds, there are a lot of null values in the year, gdp and population column. By performing some exploration it resulted that the year span of the ds merged together do not match.")
+    st.text("So I have decided to reduce the year span from 1960 to 2016")
+    st.code('''olympic_history_ds = olympic_history_ds.loc[(olympic_history_ds['Year'] > 1960) & (olympic_history_ds['Year'] < 2016), :]''')
+    st.subheader("FINALLY")
+    st.text("Let's see the dataset that I have used to performed the analysis step.")
+    st.write(olympic_history_ds)
+#--------------------------------------------------------------------------------------------------------------------------------
 
 
 
@@ -240,40 +324,40 @@ olympic_history_ds = olympic_history_ds.loc[(olympic_history_ds['Year'] > 1960) 
 
 
 ################################################## AGE DISTRIBUTION ##################################################
-#removing NaN values from the ds
+# Removing NaN values from the ds
 olympic_history_ds = olympic_history_ds[np.isfinite(olympic_history_ds['Age'])]
 
-"""
+'''
 # AGE DISTRIBUTION
-plt.figure(figsize=(5, 10))
-sns.countplot(olympic_history_ds['Age'])
-plt.title('Age distribution', fontsize = 18)
+age_dis, ax = plt.subplots(figsize=(10, 5))
+ax = sns.countplot(x='Age', data = olympic_history_ds, ax=ax)
+ax.set_xlabel('Age', size=12)
+ax.set_ylabel('Count', size=12)
+ax.set_title('Age distribution', fontsize=16)
+'''
 
 # AGE DISTRIBUTION MALE AND FEMALE BY YEAR
-fig, ax = plt.subplots(figsize=(5,10))
-a = sns.boxplot(x='Year', y='Age', hue='Sex', palette={'M':'blue', 'F':'pink'}, data=olympic_history_ds, ax=ax)      
-ax.set_xlabel('Year', size=14)
-ax.set_ylabel('Age', size=14)
-ax.set_title('Age distribution by year', fontsize=18)
+fig_age_m_f, ax = plt.subplots(figsize=(10,5))
+ax = sns.boxplot(x='Year', y='Age', hue='Sex', palette={'M':'blue', 'F':'pink'}, data = olympic_history_ds, ax=ax)      
+ax.set_xlabel('Year', size=12)
+ax.set_ylabel('Age', size=12)
+ax.set_title('Age distribution by year and gender', fontsize=16)
 
 
 # Who is the oldest athlete?
-pd.set_option('max_columns', 18)
-#print(olympic_history_ds[olympic_history_ds['Age'] == olympic_history_ds['Age'].max()].drop_duplicates(subset=['Name']))
-
-
+oldest = olympic_history_ds[olympic_history_ds['Age'] == olympic_history_ds['Age'].max()].drop_duplicates(subset=['Name'])[['Name','Sex','Age','Sport','Team','NOC','Games']]
 # And who's the youngest?
-pd.set_option('max_columns', 18)
-#print(olympic_history_ds[olympic_history_ds['Age'] == olympic_history_ds['Age'].min()].drop_duplicates(subset=['Name']))
-
+youngest = olympic_history_ds[olympic_history_ds['Age'] == olympic_history_ds['Age'].min()].drop_duplicates(subset=['Name'])[['Name','Sex','Age','Sport','Team','NOC','Games']]
 
 # The oldest athlete is an athlete that practices equestrianism.
 # Lets see which sport do elder athlete practice
 olympic_history_ds_age = olympic_history_ds['Sport'][olympic_history_ds['Age'] > 60]
 
-plt.figure(figsize=(5, 10))
-sns.countplot(x=olympic_history_ds_age, data=olympic_history_ds, order=olympic_history_ds_age.value_counts().index)
-plt.title('Athletes Over 60')
+fig_elder, ax = plt.subplots(figsize=(10, 5))
+ax = sns.countplot(x=olympic_history_ds_age, data=olympic_history_ds, order=olympic_history_ds_age.value_counts().index)
+ax.set_xlabel('Sport', size=12)
+ax.set_ylabel('Count', size=12)
+ax.set_title('Sports played by athletes over 60', fontsize=16)
 
 
 # We want to analyse the mean age of athletes who won a medal
@@ -281,54 +365,44 @@ olympic_history_ds_medalists_age = olympic_history_ds.pivot_table(olympic_histor
 olympic_history_ds_medalists_age = olympic_history_ds_medalists_age.pivot("Medal", "Year", "Age")
 olympic_history_ds_medalists_age = olympic_history_ds_medalists_age.reindex(["Gold","Silver","Bronze"])
 
-f, ax = plt.subplots(figsize=(20, 3))
-sns.heatmap(olympic_history_ds_medalists_age, annot=True, linewidths=0.05, ax=ax)
-ax.set_xlabel('Year')
-ax.set_ylabel('Medal')
-ax.set_title('Mean age of medalists')
-plt.show()
-"""
+fig_avg_age_medallist, ax = plt.subplots(figsize=(15, 6))
+ax = sns.heatmap(olympic_history_ds_medalists_age, annot=True, linewidths=0.05, ax=ax, cmap="YlGnBu")
+ax.set_xlabel('Year', size=12)
+ax.set_ylabel('Medal', size=12)
+ax.set_title('Mean age of medallists', fontsize=16)
 
 
 
 ################################################## GENDER DISTRIBUTION ##################################################
-
 # Distribution of athletes by gender
 olympic_history_ds_gender = olympic_history_ds.loc[:,['Year', 'ID', 'Sex']].drop_duplicates().groupby(['Year','Sex']).size().reset_index()
 olympic_history_ds_gender.columns = ['Year','Sex','Count']
-"""
-plt.figure(figsize=(10,10))
-sns.barplot(x='Year', y='Count', data=olympic_history_ds_gender, hue='Sex')   
-plt.title('Number of Female & Male Athletes by Years') 
-plt.show()
-"""
+
+fig_gender_dist, ax = plt.subplots(figsize=(10,5))
+ax = sns.barplot(x='Year', y='Count', data=olympic_history_ds_gender, hue='Sex', ax=ax)
+ax.set_xlabel('Year', size=12)
+ax.set_ylabel('Count', size=12)   
+ax.set_title('Number of female & male athletes by years', fontsize=16) 
 
 
 ########################## WOMEN ANALYSIS ##########################
-
 # We create a subset of the ds with only women
-olympic_history_ds_women = olympic_history_ds[olympic_history_ds.Sex == 'F']
+olympic_history_ds_women = olympic_history_ds[olympic_history_ds.Sex == 'F'].drop_duplicates(subset=['Name'])
 #print(olympic_history_ds_women.head())
 
 # We want to see the 20 most practiced sports by women
 olympic_history_ds_women_sport = olympic_history_ds_women['Sport']
-"""
-plt.figure(figsize=(15, 10))
-sns.countplot(x=olympic_history_ds_women_sport, data=olympic_history_ds_women_sport, order=olympic_history_ds_women_sport.value_counts()[:20].index)
-plt.xticks(rotation=45)
-plt.title('Most practised sport by women')
-plt.show()
-"""
 
-# I am interested in knowing how many women have practiced weightlifting in the history of the olympic games
-olympic_history_ds_women_wl = olympic_history_ds_women[olympic_history_ds_women.Sport == 'Weightlifting'].drop_duplicates(subset=['Name']).value_counts().to_frame()
-#print(olympic_history_ds_women.drop_duplicates(subset=['Name']))
-#print(olympic_history_ds_women_wl)
+fig_women_sports, ax = plt.subplots(figsize=(10,5))
+ax = sns.countplot(x=olympic_history_ds_women_sport, data=olympic_history_ds_women_sport, order=olympic_history_ds_women_sport.value_counts()[:20].index)
+plt.xticks(rotation=65)
+ax.set_xlabel('Sport', size=12)
+ax.set_ylabel('Count', size=12)   
+ax.set_title('Most practised sports by women', fontsize=16) 
 
 
 
 ################################################## MEDAL DISTRIBUTION AND GDP CORRELATION ##################################################
-
 ########################## MEDAGLIERE ##########################
 # Create indexing column counting medal or not
 olympic_history_ds['Medal_i'] = np.where(olympic_history_ds.loc[:,'Medal'] == 'NoMedal', 0, 1)
@@ -338,7 +412,6 @@ olympic_history_ds['Medal_i'] = np.where(olympic_history_ds.loc[:,'Medal'] == 'N
 # So the total sum would be incorrect if we think about a sum of medals won by a nation
 # We have to identify team events and single events
 team_medal = pd.pivot_table(olympic_history_ds, index = ['Team', 'Year', 'Event'], columns = 'Medal', values = 'Medal_i', aggfunc = 'sum', fill_value = 0).drop('NoMedal', axis = 1).reset_index()
-
 team_medal = team_medal.loc[team_medal['Gold'] > 1, :]
 team_event = team_medal['Event'].unique()
 #print(team_event)
@@ -377,13 +450,20 @@ top10_nations = medagliere_piv.sort_values('All', ascending = False).head(10)
 top6_nations = ['USA', 'Russia', 'Germany', 'China', 'France', 'Italy']
 
 #Create a pivoted ds to show the number of medals won by nation by year in a linechart
+#Create a pivoted ds to show the number of medals won by nation by year in a linechart
 medagliere_by_year_piv = pd.pivot_table(medagliere, index = 'Year', columns = 'Team', values = 'Medal_i', aggfunc = 'sum')[top6_nations]
-"""
-medagliere_by_year_piv.plot(linestyle = '-', figsize = (10,8), linewidth = 1)
+print(medagliere_by_year_piv)
+
+medagliere_by_year_piv_df = medagliere_by_year_piv.reset_index()
+print(medagliere_by_year_piv_df)
+
+'''
+fig_medagliere = medagliere_by_year_piv.plot(linestyle = '-', figsize = (10,8), linewidth = 1)
 plt.xlabel('Year')
 plt.ylabel('Medals')
-#plt.show()
-"""
+
+'''
+
 # Create a mask to match 6 best nations
 top6_nations_mask = olympic_history_ds_nation['Team'].map(lambda x: x in top6_nations)
 
@@ -428,5 +508,119 @@ plt.show()
 
 
 
+#--------------------------------------------------------------------------------------------------------------------------------
+# STREAMLIT ---------------------------------------------------------------------------------------------------------------------
+if rad_navigation == "DATA ANALYSIS":
+    st.header("DATA ANALYSIS AND VISUALISATION")
+    st.subheader("As fourth step, I have performed some data analysis and I propose some graphical visualisation to understand better the data.")
+
+    st.subheader("AGE DISTRIBUTION")
+    st.text("First of all, I have removed NaN values.")
+    st.code('''olympic_history_ds = olympic_history_ds[np.isfinite(olympic_history_ds['Age'])]''')
+    st.text("Let's see the age distribution of athletes plotted against year and gender.")
+    #st.pyplot(age_dis)
+    st.pyplot(fig_age_m_f)
+    st.text("Let's see who are the oldest and youngest athletes.")
+    st.text("OLDEST")
+    st.write(oldest)
+    st.text("YOUNGEST")
+    st.write(youngest)
+    st.text("It's obvious to see that an elder athlete is not a swimmer or a 100m runner.   \nBut let's discover which are the most practiced sports by elders.")
+    st.code('''olympic_history_ds_elder = olympic_history_ds['Sport'][olympic_history_ds['Age'] > 60]''')
+    st.pyplot(fig_elder)
+    st.text('As expected elder athletes practice sports that do not require resistance or strength.')
+    st.text("It is also interesting to see the average age of medallist athletes.  \nLet's discover it by creating a pivot table with Medal and Age index columns.")
+    st.code('''olympic_history_ds_medallists_age = olympic_history_ds.pivot_table(olympic_history_ds, index=['Age','Medal'], aggfunc=np.mean).reset_index()[['Year','Medal','Age']]
+olympic_history_ds_medallists_age = olympic_history_ds_medallists_age.pivot("Medal", "Year", "Age")
+olympic_history_ds_medallists_age = olympic_history_ds_medallists_age.reindex(["Gold","Silver","Bronze"])''')
+    st.pyplot(fig_avg_age_medallist)
+
+    st.subheader("GENDER DISTRIBUTION")
+    st.text("Let's see the distribution of male and female per year.")
+    st.code('''olympic_history_ds_gender = olympic_history_ds.loc[:,['Year', 'ID', 'Sex']].drop_duplicates().groupby(['Year','Sex']).size().reset_index()
+olympic_history_ds_gender.columns = ['Year','Sex','Count']''')
+    st.pyplot(fig_gender_dist)
+    st.subheader("FEMALE ATHLETES AT THE OLYMPICS")
+    st.text("Firstly, I have filtered data by gender.  \nLet's see sports distribution for female athletes. ")
+    st.code('''olympic_history_ds_women = olympic_history_ds[olympic_history_ds.Sex == 'F'].drop_duplicates(subset=['Name'])''')
+    st.pyplot(fig_women_sports)
+    st.text("INTERACTIVE SEARCH")
+    input_sport = st.text_input('Insert a sport (starting with capital letter, eg. Weightlifting) to know how many women practice this sport')
+    olympic_history_ds_women_wl = len(olympic_history_ds_women[olympic_history_ds_women.Sport == input_sport].drop_duplicates(subset=['Name']))
+    st.write('The searched sport is: ', input_sport)
+    st.write('There are: ', olympic_history_ds_women_wl, ' practicing this sport.')
+
+    st.subheader("MEDALS DISTRIBUTION")
+    st.text("In order to get correct information about medals won, I have to take into consideration team events and single events, to avoid duplicate counting.")
+    st.text("Firstly, I have created an index column containing 1 for a won medal and 0 otherwise.")
+    st.code('''olympic_history_ds['Medal_i'] = np.where(olympic_history_ds.loc[:,'Medal'] == 'NoMedal', 0, 1)''')
+    st.text("Secondly, I have identified which are the team events of the olympics.")
+    st.code('''team_medal = pd.pivot_table(olympic_history_ds, index = ['Team', 'Year', 'Event'], columns = 'Medal', values = 'Medal_i', aggfunc = 'sum', fill_value = 0).drop('NoMedal', axis = 1).reset_index()
+team_medal = team_medal.loc[team_medal['Gold'] > 1, :]
+team_event = team_medal['Event'].unique()''')
+    st.write(team_event)
+    st.text("Then, I have written some masks to create a column 'Event_cat' that identifies if the event is team or single.")
+    st.code('''team_event_mask = olympic_history_ds['Event'].map(lambda x: x in team_event)
+single_event_mask = [not i for i in team_event_mask]
+medal_mask = olympic_history_ds['Medal_i'] == 1
+
+olympic_history_ds['T_event'] = np.where(team_event_mask & medal_mask, 1, 0)
+olympic_history_ds['S_event'] = np.where(single_event_mask & medal_mask, 1, 0)
+
+olympic_history_ds['Event_cat'] = olympic_history_ds['S_event'] + olympic_history_ds['T_event']''')
+    st.text("Then, I have grouped data by year, team, event and medal.")
+    st.code('''olympic_history_ds_nation = olympic_history_ds.groupby(['Year', 'Team', 'Event', 'Medal'])[['Medal_i', 'Event_cat']].agg('sum').reset_index()
+olympic_history_ds_nation['Medal_i'] = olympic_history_ds_nation['Medal_i']/olympic_history_ds_nation['Event_cat']''')
+    st.text("And then, grouped again by year and team to sum the won medals.  \nFinally, I have created a pivot table to show the top 10 nations by medals won.")
+    st.code('''medagliere = olympic_history_ds_nation.groupby(['Year','Team'])['Medal_i'].agg('sum').reset_index()
+medagliere_piv = pd.pivot_table(medagliere, index = 'Team', columns = 'Year', values = 'Medal_i', aggfunc = 'sum', margins = True)''')
+    st.text("Let's see which are the top 10 powers of the Olympic Games.")
+    st.write(top10_nations)
+    st.text("Let's see the top 6 nations plotted on a graph.")
+    st.pyplot(fig_medagliere)
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
 #################################################################################################################################
 ################################################## SPORT PREDICTION BASED ON WEIGHT AND HEIGHT ##################################################
+
+
+
+
+
+
+
+#################################################################################################################################
+################################################## UNUSED CODE AFTER STREAMLIT ADDITION ##################################################
+'''
+### Getting technical information 
+print(ath_events_ds.info())
+print(noc_regions_ds.info())
+print(gdp_ds.info())
+print(population_ds.info())
+
+
+### Printing the first and last 20 rows of the dataset to understand content
+print(ath_events_ds.head(20))
+print(ath_events_ds.tail(20))
+
+print(noc_regions_ds.head(20))
+print(noc_regions_ds.tail(20))
+
+print(gdp_ds.head(20))
+print(gdp_ds.tail(20))
+
+print(population_ds.head(20))
+print(population_ds.tail(20))
+
+
+# I am interested in knowing how many women have practiced weightlifting in the history of the olympic games
+#olympic_history_ds_women_wl = olympic_history_ds_women[olympic_history_ds_women.Sport == 'Weightlifting'].drop_duplicates(subset=['Name'])
+#print(olympic_history_ds_women_wl)
+
+
+'''

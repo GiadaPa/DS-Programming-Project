@@ -33,3 +33,5 @@ DATA ANALYSIS
 
 PREDICTION
    1. Which sport is the most suitable for an athlete based on height, weight and age?
+
+STREAMLIT LIBRARY TO PRESENT THE PROJECT

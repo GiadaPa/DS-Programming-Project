@@ -378,8 +378,10 @@ ax.set_title('Mean age of medallists', fontsize=16)
 olympic_history_ds_gender = olympic_history_ds.loc[:,['Year', 'ID', 'Sex']].drop_duplicates().groupby(['Year','Sex']).size().reset_index()
 olympic_history_ds_gender.columns = ['Year','Sex','Count']
 
+palette = {'M': 'tab:blue','F': 'tab:pink'}
+
 fig_gender_dist, ax = plt.subplots(figsize=(10,5))
-ax = sns.barplot(x='Year', y='Count', data=olympic_history_ds_gender, hue='Sex', ax=ax)
+ax = sns.barplot(x='Year', y='Count', data=olympic_history_ds_gender, hue='Sex', palette=palette, ax=ax)
 ax.set_xlabel('Year', size=12)
 ax.set_ylabel('Count', size=12)   
 ax.set_title('Number of female & male athletes by years', fontsize=16) 
@@ -452,32 +454,31 @@ top6_nations = ['USA', 'Russia', 'Germany', 'China', 'France', 'Italy']
 #Create a pivoted ds to show the number of medals won by nation by year in a linechart
 #Create a pivoted ds to show the number of medals won by nation by year in a linechart
 medagliere_by_year_piv = pd.pivot_table(medagliere, index = 'Year', columns = 'Team', values = 'Medal_i', aggfunc = 'sum')[top6_nations]
-print(medagliere_by_year_piv)
+#print(medagliere_by_year_piv)
 
-medagliere_by_year_piv_df = medagliere_by_year_piv.reset_index()
-print(medagliere_by_year_piv_df)
+#medagliere_by_year_piv_df = medagliere_by_year_piv.reset_index()
+#print(medagliere_by_year_piv_df)
 
-'''
-fig_medagliere = medagliere_by_year_piv.plot(linestyle = '-', figsize = (10,8), linewidth = 1)
-plt.xlabel('Year')
-plt.ylabel('Medals')
+fig_medagliere, ax = plt.subplots(figsize=(10,5))
+ax = sns.lineplot(data=medagliere_by_year_piv)
+plt.xticks(rotation=65)
+ax.set_xlabel('Year', size=12)
+ax.set_ylabel('Nation', size=12)   
+ax.set_title('Medals won by nations over the years', fontsize=16) 
 
-'''
 
 # Create a mask to match 6 best nations
 top6_nations_mask = olympic_history_ds_nation['Team'].map(lambda x: x in top6_nations)
 
 # Create a pivoted ds to calculate sum of gold, silver and bronze medals for each nation
 medagliere_medals = pd.pivot_table(olympic_history_ds_nation[top6_nations_mask], index = ['Team'], columns = 'Medal', values = 'Medal_i', aggfunc = 'sum', fill_value = 0).drop('NoMedal', axis = 1)
-
+#print(medagliere_medals)
 # Order medals to be shown on the barchart
 medagliere_medals = medagliere_medals.loc[:, ['Gold', 'Silver', 'Bronze']]
-"""
-medagliere_medals.plot(kind = 'bar', stacked = True, figsize = (8,6), rot = 0, color=['gold', 'silver', 'brown'])
-plt.xlabel('Nation')
-plt.ylabel('Medals')
-plt.show()
-"""
+#print(medagliere_medals)
+
+# GRAPH: Gold, silver, bronze distribution by nations line 511
+
 
 
 ########################## GDP ##########################
@@ -495,18 +496,24 @@ medagliere_gdp = medagliere.merge(year_team_gdp, left_on = ['Year', 'Team'], rig
 medal_i_mask = medagliere_gdp['Medal_i'] > 0
 
 # calculate the correlation of GDP and the medal won
-correlation = medagliere_gdp.loc[medal_i_mask, ['GDP', 'Medal_i']].corr()['Medal_i'][0]
+correlation_gdp_medals = medagliere_gdp.loc[medal_i_mask, ['GDP', 'Medal_i']].corr()['Medal_i'][0]
 # This is a quite high correlation
 #print(correlation)
-"""
-# Let's plot on the chart the GDP on the x axis and the medals on the y
-plt.plot(medagliere_gdp.loc[medal_i_mask, 'GDP'],  medagliere_gdp.loc[medal_i_mask, 'Medal_i'], linestyle='none', marker = 'o', alpha = 0.4)
-plt.xlabel('GDP')
-plt.ylabel('Medals')
-plt.show()
-"""
+
+fig_gdp_distr, ax = plt.subplots(figsize=(10,5))
+ax = sns.scatterplot(data=medagliere_gdp, x=medagliere_gdp.loc[medal_i_mask, 'GDP'], y=medagliere_gdp.loc[medal_i_mask, 'Medal_i'], ax=ax)
+ax.set_xlabel('GDP', size=12)
+ax.set_ylabel('Medals', size=12)  
+ax.set_title('Medals distribution based on GDP', fontsize=16) 
 
 
+
+# Gold, silver, bronze distribution by nations
+fig_medal_distr, ax = plt.subplots()
+ax = medagliere_medals.plot(kind = 'bar', stacked = True, figsize=(10,5), rot = 0, color=['gold', 'silver', 'brown'])
+ax.set_xlabel('Nation', size=12)
+ax.set_ylabel('Medals', size=12)  
+ax.set_title('Gold, silver, bronze distribution by nations', fontsize=16) 
 
 #--------------------------------------------------------------------------------------------------------------------------------
 # STREAMLIT ---------------------------------------------------------------------------------------------------------------------
@@ -578,7 +585,24 @@ medagliere_piv = pd.pivot_table(medagliere, index = 'Team', columns = 'Year', va
     st.write(top10_nations)
     st.text("Let's see the top 6 nations plotted on a graph.")
     st.pyplot(fig_medagliere)
-
+    st.text("Lastly, I want to see the distribution of gold, silver and bronze medals for the top 6 nations.  \n So, I have created a mask to map them.")
+    st.code('''top6_nations_mask = olympic_history_ds_nation['Team'].map(lambda x: x in top6_nations)''')
+    st.text("Then, I have crated a pivot table indexed on Team  with Medal as column.")
+    st.code('''medagliere_medals = pd.pivot_table(olympic_history_ds_nation[top6_nations_mask], index = ['Team'], columns = 'Medal', values = 'Medal_i', aggfunc = 'sum', fill_value = 0).drop('NoMedal', axis = 1)''')
+    st.text("Let's see the distribution on a bar chart.")
+    st.set_option('deprecation.showPyplotGlobalUse', False)
+    st.pyplot(fig_medal_distr=plt)
+    
+    st.subheader("MEDALS DISTRIBUTION BASED ON GDP")
+    st.text("I suppose the number of medals won by the 6 best nations is strictly related to the GDP of that nation.")
+    st.text("To verify this hypothesis, let's see the correlation between GDP and the sum of all medals won.")
+    st.code('''medal_i_mask = medagliere_gdp['Medal_i'] > 0
+correlation = medagliere_gdp.loc[medal_i_mask, ['GDP', 'Medal_i']].corr()['Medal_i'][0]''')
+    st.write(correlation_gdp_medals)
+    st.text("As expected the correlation is pretty high.")
+    st.text("Let's see also a scatterplot with the medals won plotted against GDP of nations.")
+    st.pyplot(fig_gdp_distr)
+  
 #--------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -592,35 +616,3 @@ medagliere_piv = pd.pivot_table(medagliere, index = 'Team', columns = 'Year', va
 
 
 
-
-
-#################################################################################################################################
-################################################## UNUSED CODE AFTER STREAMLIT ADDITION ##################################################
-'''
-### Getting technical information 
-print(ath_events_ds.info())
-print(noc_regions_ds.info())
-print(gdp_ds.info())
-print(population_ds.info())
-
-
-### Printing the first and last 20 rows of the dataset to understand content
-print(ath_events_ds.head(20))
-print(ath_events_ds.tail(20))
-
-print(noc_regions_ds.head(20))
-print(noc_regions_ds.tail(20))
-
-print(gdp_ds.head(20))
-print(gdp_ds.tail(20))
-
-print(population_ds.head(20))
-print(population_ds.tail(20))
-
-
-# I am interested in knowing how many women have practiced weightlifting in the history of the olympic games
-#olympic_history_ds_women_wl = olympic_history_ds_women[olympic_history_ds_women.Sport == 'Weightlifting'].drop_duplicates(subset=['Name'])
-#print(olympic_history_ds_women_wl)
-
-
-'''

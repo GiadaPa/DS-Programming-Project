@@ -32,6 +32,6 @@ DATA ANALYSIS
     3. Medal distribution and GDP correlation
 
 PREDICTION
-   1. Which sport is the most suitable for an athlete based on height, weight and age?
+   1. Which sport is the most suitable for an athlete based on sex, height, weight and age?
 
 STREAMLIT LIBRARY TO PRESENT THE PROJECT

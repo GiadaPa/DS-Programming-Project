@@ -37,11 +37,13 @@ st.markdown("""
     </style> """, 
     unsafe_allow_html=True
 )
+st.text("AUTHOR: Giada Palma VR471280")
+st.text("  \n")
 st.image(img_h)
 st.title("THE OLYMPIC GAMES")
 
 
-rad_navigation = st.sidebar.radio("Navigation", ["INITIAL SETUP","DATA EXPLORATION", "DATA WRANGLING", "DATA ANALYSIS", "PREDICTION"])
+rad_navigation = st.sidebar.radio("Navigation", ["INITIAL SETUP","DATA EXPLORATION", "DATA WRANGLING", "DATA ANALYSIS", "PREDICTION PRE-PROCESSING", "DECISIONTREE CLASSIFICATION"])
 
 if rad_navigation == "INITIAL SETUP":
     st.header("INITIAL SETUP")
@@ -79,11 +81,14 @@ print(ath_events_ds['Height'].describe())
 '''
 
 ### Counting the null values
+@st.cache
 def show_nulls(df):
     nulls = df.isnull().sum()
     return nulls
 
+
 ath_mean = ath_events_ds[['Sex', 'Age', 'Weight', 'Height']].groupby('Sex').mean()
+
 
 correlation = ath_events_ds.corr()
 fig, ax = plt.subplots(figsize=(10,6))
@@ -527,6 +532,7 @@ if rad_navigation == "DATA ANALYSIS":
     st.text("Let's see the age distribution of athletes plotted against year and gender.")
     #st.pyplot(age_dis)
     st.pyplot(fig_age_m_f)
+    st.text("The graph shows that male athletes are usually elder than female athletes.")
     st.text("Let's see who are the oldest and youngest athletes.")
     st.text("OLDEST")
     st.write(oldest)
@@ -541,16 +547,19 @@ if rad_navigation == "DATA ANALYSIS":
 olympic_history_ds_medallists_age = olympic_history_ds_medallists_age.pivot("Medal", "Year", "Age")
 olympic_history_ds_medallists_age = olympic_history_ds_medallists_age.reindex(["Gold","Silver","Bronze"])''')
     st.pyplot(fig_avg_age_medallist)
+    st.text("We can see that the average age of medallist is increased by one/two years.")
 
     st.subheader("GENDER DISTRIBUTION")
     st.text("Let's see the distribution of male and female per year.")
     st.code('''olympic_history_ds_gender = olympic_history_ds.loc[:,['Year', 'ID', 'Sex']].drop_duplicates().groupby(['Year','Sex']).size().reset_index()
 olympic_history_ds_gender.columns = ['Year','Sex','Count']''')
     st.pyplot(fig_gender_dist)
+    st.text("It is highly evident that there are more male athletes than female. However, the number of female athletes participating has drastically increased from the first editions of the games.")
     st.subheader("FEMALE ATHLETES AT THE OLYMPICS")
     st.text("Firstly, I have filtered data by gender.  \nLet's see sports distribution for female athletes. ")
     st.code('''olympic_history_ds_women = olympic_history_ds[olympic_history_ds.Sex == 'F'].drop_duplicates(subset=['Name'])''')
     st.pyplot(fig_women_sports)
+    st.text("We can see that the most practised sports by women are athletics, swimming, rowing, volleyball and gymnastics.")
     st.text("INTERACTIVE SEARCH")
     input_sport = st.text_input('Insert a sport (starting with capital letter, eg. Weightlifting) to know how many women practice this sport')
     olympic_history_ds_women_wl = len(olympic_history_ds_women[olympic_history_ds_women.Sport == input_sport].drop_duplicates(subset=['Name']))
@@ -585,13 +594,15 @@ medagliere_piv = pd.pivot_table(medagliere, index = 'Team', columns = 'Year', va
     st.write(top10_nations)
     st.text("Let's see the top 6 nations plotted on a graph.")
     st.pyplot(fig_medagliere)
-    st.text("Lastly, I want to see the distribution of gold, silver and bronze medals for the top 6 nations.  \n So, I have created a mask to map them.")
+    st.text("We can see that are some drops in the curve from USA and Russia, this is due to historical events, like disqualifications and boicots. ")
+    st.text("Lastly, I want to see the distribution of gold, silver and bronze medals for the top 6 nations.  \nSo, I have created a mask to map them.")
     st.code('''top6_nations_mask = olympic_history_ds_nation['Team'].map(lambda x: x in top6_nations)''')
     st.text("Then, I have crated a pivot table indexed on Team  with Medal as column.")
     st.code('''medagliere_medals = pd.pivot_table(olympic_history_ds_nation[top6_nations_mask], index = ['Team'], columns = 'Medal', values = 'Medal_i', aggfunc = 'sum', fill_value = 0).drop('NoMedal', axis = 1)''')
     st.text("Let's see the distribution on a bar chart.")
     st.set_option('deprecation.showPyplotGlobalUse', False)
     st.pyplot(fig_medal_distr=plt)
+    st.text("From the graph we can see that USA and Russia have quite a distance from the other top nations in terms of medals won.")
     
     st.subheader("MEDALS DISTRIBUTION BASED ON GDP")
     st.text("I suppose the number of medals won by the 6 best nations is strictly related to the GDP of that nation.")
@@ -601,7 +612,8 @@ correlation = medagliere_gdp.loc[medal_i_mask, ['GDP', 'Medal_i']].corr()['Medal
     st.write(correlation_gdp_medals)
     st.text("As expected the correlation is pretty high.")
     st.text("Let's see also a scatterplot with the medals won plotted against GDP of nations.")
-    st.pyplot(fig_gdp_distr)
+    st.pyplot(fig_gdp_distr)    
+    st.text("From the scatter plot we can see that nations with a low GDP also have a very low number of medals, if any.")
   
 #--------------------------------------------------------------------------------------------------------------------------------
 
@@ -610,9 +622,159 @@ correlation = medagliere_gdp.loc[medal_i_mask, ['GDP', 'Medal_i']].corr()['Medal
 
 
 #################################################################################################################################
-################################################## SPORT PREDICTION BASED ON WEIGHT AND HEIGHT ##################################################
+################################################## SPORT PREDICTION BASED ON WEIGHT, HEIGHT and GENDER ##################################################
+
+
+# MOVED PREDICTION CODE IN OlympiPrediction.py FILE TO IMPROVE THE PERFORMANCE OF THE STREAMLIT APP
+# DEPLOYED 2 STREAMLIT APPS:
+#   1 FOR DATA VISUALISATION AND ANALYSIS
+#   2 FOR DATA PREDICTION
+
+
+from sklearn.preprocessing import LabelEncoder
+from sklearn.model_selection import train_test_split
+from sklearn import tree
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.metrics import classification_report, precision_score
+
+
+# Remove null values from the column that will be used to predict the sport
+olympic_history_ds_prediction = olympic_history_ds.dropna(subset=['Age', 'Height', 'Weight'])
+#print(olympic_history_ds_prediction.isnull().sum())
+
+# Restrict sports to summer sports
+olympic_history_ds_prediction = olympic_history_ds_prediction[olympic_history_ds_prediction['Season'] == 'Summer']
+
+# Drop unuseful columns
+olympic_history_ds_prediction= olympic_history_ds_prediction.drop(columns=['Year', 'Name','ID', 'Team', 'Games', 'Season', 'City', 'NOC', 'Event', 'Medal', 'Population', 'GDP', 'Medal_i', 'T_event', 'S_event', 'Event_cat', 'Country Code'])
+#print(olympic_history_ds_prediction.info())
+
+# Drop duplicates
+olympic_history_ds_prediction = olympic_history_ds_prediction.drop_duplicates()
+#print(olympic_history_ds_prediction.info())
 
 
 
 
+#--------------------------------------------------------------------------------------------------------------------------------
 
+
+# Encode Sex column with values 1 for male and 0 for female
+label_enc1 = LabelEncoder()
+olympic_history_ds_prediction['Sex'] = label_enc1.fit_transform(olympic_history_ds_prediction['Sex'])
+#print(olympic_history_ds_prediction.head())
+
+# Keep only unique entries for each sport
+sports = olympic_history_ds_prediction['Sport'].unique()
+#print(len(sports))
+
+# Encode Sport column with integer values 
+label_enc2 = LabelEncoder()
+olympic_history_ds_prediction['Sport'] = label_enc2.fit_transform(olympic_history_ds_prediction['Sport'])
+#print(olympic_history_ds_prediction.head())
+
+
+# Draw pairplot catgorised by gender
+fig_pred = sns.pairplot(olympic_history_ds_prediction, palette='husl', hue='Sex')
+#plt.show()
+
+
+
+#--------------------------------------------------------------------------------------------------------------------------------
+# STREAMLIT ---------------------------------------------------------------------------------------------------------------------
+# Put this piece of code before the decision tree to make the app load the initial information faster
+if rad_navigation == "PREDICTION PRE-PROCESSING":
+    st.header("PRE-PROCESSING for PREDICTION")
+    st.subheader("As last step, I have used the decisiontree algorithm to try to predict wich sport fits best for a person based on gender, age, height and weight.")
+    st.subheader('DATA PREPARATION')
+    st.text("Fisrtly, I have imported the sklearn packages.")
+    st.code('''from sklearn.preprocessing import LabelEncoder
+from sklearn.model_selection import train_test_split
+from sklearn import tree
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.metrics import classification_report''')
+    st.text("Secondly, I have removed null values from the columns that I have chosen to use for classification. I have restricted the ds to summer sports, removed unuseful columns and removed duplicates.")
+    st.code('''olympic_history_ds_prediction = olympic_history_ds.dropna(subset=['Age', 'Height', 'Weight'])
+olympic_history_ds_prediction = olympic_history_ds_prediction[olympic_history_ds_prediction['Season'] == 'Summer']
+olympic_history_ds_prediction= olympic_history_ds_prediction.drop(columns=['Year', 'Name','ID', 'Team', 'Games', 'Season', 'City', 'NOC', 'Event', 'Medal', 'Population', 'GDP', 'Medal_i', 'T_event', 'S_event', 'Event_cat', 'Country Code'])
+olympic_history_ds_prediction = olympic_history_ds_prediction.drop_duplicates()''')
+    
+    st.subheader('PRE-PROCESSING')
+    st.text("Thirdly, I have performed some preprocessing of the data by applying encoding on the column Sex and Sport.")
+    st.code('''label_enc1 = LabelEncoder()
+olympic_history_ds_prediction['Sex'] = label_enc1.fit_transform(olympic_history_ds_prediction['Sex'])
+
+label_enc2 = LabelEncoder()
+olympic_history_ds_prediction['Sport'] = label_enc2.fit_transform(olympic_history_ds_prediction['Sport'])''')
+    st.text("Let's see data correlation using pairplot.")
+    st.pyplot(fig_pred)
+    st.text("The graph shows that there are some trends between sports, but there is also a very large overlap, particularly in the average age, height, and weight of athletes.")
+#--------------------------------------------------------------------------------------------------------------------------------
+    
+
+# Train the model predict sex age and weight with X and sport with y
+X = olympic_history_ds_prediction.drop(columns=['Sport'])
+#print(X)
+y = olympic_history_ds_prediction['Sport']
+#print(y)
+#Split the data 70% train and 30% test
+X_train, X_test, y_train, y_test = train_test_split(X.values, y.values, test_size=0.3)
+
+# Decision tree algorithm
+decision_tree = DecisionTreeClassifier()
+decision_tree.fit(X_train,y_train)
+predictions_dt = decision_tree.predict(X_train)
+#print(classification_report(y_train,predictions_dt))
+#print("Precision score: {}".format(precision_score(y_train, predictions_dt, average='weighted')))
+predictions_dt = decision_tree.predict(X_test)
+#print(classification_report(y_test,predictions_dt))
+#print("Precision score: {}".format(precision_score(y_test, predictions_dt, average='weighted')))
+
+@st.cache
+def print_precision(train_test):
+    print("Precision score: {}".format(precision_score(train_test, predictions_dt, average='weighted')))
+
+#print(precision_score(y_test, predictions_dt))
+
+@st.cache
+def sport_suggestion(gender, age, height, weight):
+    test = np.array([gender, age, height, weight], np.float64)
+    test = test.reshape(1, -1)
+    dt_prediction = decision_tree.predict(test)
+    toprint = "Suggested sport is: "
+    toprint = toprint + sports[dt_prediction]
+    print(toprint[0])
+
+genders = [0, 1]
+ages = [15, 22, 35, 50]
+heights = [150, 175, 185, 200]
+weights = [50, 65, 80, 105]
+for gender in genders:
+    for age in ages:
+        for height in heights:
+            for weight in weights:                
+                print('For a', age, 'year old', 'male' if gender else 'female', height, 'cm and', weight, 'kg:')
+                sport_suggestion(gender, age, height, weight)
+
+
+#--------------------------------------------------------------------------------------------------------------------------------
+# STREAMLIT ---------------------------------------------------------------------------------------------------------------------
+if rad_navigation == "DECISIONTREE CLASSIFICATION":
+    st.subheader('CLASSIFICATION')
+    st.text("I have started the project thinking it would be an easy task to classify athletes based on gender, heigh, weight and age.  \nBut this is true only for emblematic sports like weightlifting.")
+    st.text("  \nHowever I have tried the classification anyway. So as first step I have trained the model and splitted data 70% on train and 30% on test.")
+    st.code('''X = olympic_history_ds_prediction.drop(columns=['Sport'])
+y = olympic_history_ds_prediction['Sport']
+X_train, X_test, y_train, y_test = train_test_split(X.values, y.values, test_size=0.3)''')
+    st.text("Then I have applied the decisiontree algorithm.")
+    st.code('''decision_tree = DecisionTreeClassifier()
+decision_tree.fit(X_train,y_train)
+predictions_dt = decision_tree.predict(X_train)
+predictions_dt = decision_tree.predict(X_test)''')
+    st.text("Let's see how the decisiontree performed.  \nPrecision score: 0.6768480573562775  \nPrecision score: 0.10936865314551031")
+    st.text("The decisiontree algorithm has overfit the training set, reaching 68% precision, but on the test set it has only reached 10% precision.")
+    st.text("Let's see the suggested sports for some samples of athletes:  \ngenders = [0, 1]  \nages = [15, 30, 50]  \nheights = [150, 175, 200]  \nweights = [65, 80, 105]")
+    
+   
+
+#--------------------------------------------------------------------------------------------------------------------------------

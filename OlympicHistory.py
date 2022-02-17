@@ -624,13 +624,6 @@ correlation = medagliere_gdp.loc[medal_i_mask, ['GDP', 'Medal_i']].corr()['Medal
 #################################################################################################################################
 ################################################## SPORT PREDICTION BASED ON WEIGHT, HEIGHT and GENDER ##################################################
 
-
-# MOVED PREDICTION CODE IN OlympiPrediction.py FILE TO IMPROVE THE PERFORMANCE OF THE STREAMLIT APP
-# DEPLOYED 2 STREAMLIT APPS:
-#   1 FOR DATA VISUALISATION AND ANALYSIS
-#   2 FOR DATA PREDICTION
-
-
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
 from sklearn import tree
@@ -652,11 +645,6 @@ olympic_history_ds_prediction= olympic_history_ds_prediction.drop(columns=['Year
 # Drop duplicates
 olympic_history_ds_prediction = olympic_history_ds_prediction.drop_duplicates()
 #print(olympic_history_ds_prediction.info())
-
-
-
-
-#--------------------------------------------------------------------------------------------------------------------------------
 
 
 # Encode Sex column with values 1 for male and 0 for female
@@ -709,8 +697,27 @@ olympic_history_ds_prediction['Sport'] = label_enc2.fit_transform(olympic_histor
     st.text("Let's see data correlation using pairplot.")
     st.pyplot(fig_pred)
     st.text("The graph shows that there are some trends between sports, but there is also a very large overlap, particularly in the average age, height, and weight of athletes.")
+
 #--------------------------------------------------------------------------------------------------------------------------------
-    
+# STREAMLIT ---------------------------------------------------------------------------------------------------------------------
+if rad_navigation == "DECISIONTREE CLASSIFICATION":
+    st.subheader('CLASSIFICATION')
+    st.text("I have started the project thinking it would be an easy task to classify athletes based on gender, heigh, weight and age.  \nBut this is true only for emblematic sports like weightlifting.")
+    st.text("  \nHowever I have tried the classification anyway. So as first step I have trained the model and splitted data 70% on train and 30% on test.")
+    st.code('''X = olympic_history_ds_prediction.drop(columns=['Sport'])
+y = olympic_history_ds_prediction['Sport']
+X_train, X_test, y_train, y_test = train_test_split(X.values, y.values, test_size=0.3)''')
+    st.text("Then I have applied the decisiontree algorithm.")
+    st.code('''decision_tree = DecisionTreeClassifier()
+decision_tree.fit(X_train,y_train)
+predictions_dt = decision_tree.predict(X_train)
+predictions_dt = decision_tree.predict(X_test)''')
+    st.text("Let's see how the decisiontree performed.  \nPrecision score: 0.6768480573562775  \nPrecision score: 0.10936865314551031")
+    st.text("The decisiontree algorithm has overfit the training set, reaching 68% precision, but on the test set it has only reached 10% precision.")
+    st.text("Samples of athletes:  \ngenders = [0, 1]  \nages = [15, 30, 50]  \nheights = [150, 175, 200]  \nweights = [65, 80, 105].  \nTo see the predicted sports open the link below.")
+    st.write("Predicted sports: [link](https://www.kaggle.com/heesoo37/120-years-of-olympic-history-athletes-and-results)")
+
+#--------------------------------------------------------------------------------------------------------------------------------   
 
 # Train the model predict sex age and weight with X and sport with y
 X = olympic_history_ds_prediction.drop(columns=['Sport'])
@@ -736,6 +743,9 @@ def print_precision(train_test):
 
 #print(precision_score(y_test, predictions_dt))
 
+
+sourceFile = open('Sport_Predictions.txt', 'w')
+
 @st.cache
 def sport_suggestion(gender, age, height, weight):
     test = np.array([gender, age, height, weight], np.float64)
@@ -743,38 +753,17 @@ def sport_suggestion(gender, age, height, weight):
     dt_prediction = decision_tree.predict(test)
     toprint = "Suggested sport is: "
     toprint = toprint + sports[dt_prediction]
-    print(toprint[0])
+    print(toprint[0], file = sourceFile)
 
 genders = [0, 1]
-ages = [15, 22, 35, 50]
-heights = [150, 175, 185, 200]
-weights = [50, 65, 80, 105]
+ages = [15, 30, 50]
+heights = [150, 175, 200]
+weights = [65, 80, 105]
 for gender in genders:
     for age in ages:
         for height in heights:
             for weight in weights:                
-                print('For a', age, 'year old', 'male' if gender else 'female', height, 'cm and', weight, 'kg:')
+                print('For a', age, 'year old', 'male' if gender else 'female', height, 'cm and', weight, 'kg:',  file = sourceFile)
                 sport_suggestion(gender, age, height, weight)
+sourceFile.close()
 
-
-#--------------------------------------------------------------------------------------------------------------------------------
-# STREAMLIT ---------------------------------------------------------------------------------------------------------------------
-if rad_navigation == "DECISIONTREE CLASSIFICATION":
-    st.subheader('CLASSIFICATION')
-    st.text("I have started the project thinking it would be an easy task to classify athletes based on gender, heigh, weight and age.  \nBut this is true only for emblematic sports like weightlifting.")
-    st.text("  \nHowever I have tried the classification anyway. So as first step I have trained the model and splitted data 70% on train and 30% on test.")
-    st.code('''X = olympic_history_ds_prediction.drop(columns=['Sport'])
-y = olympic_history_ds_prediction['Sport']
-X_train, X_test, y_train, y_test = train_test_split(X.values, y.values, test_size=0.3)''')
-    st.text("Then I have applied the decisiontree algorithm.")
-    st.code('''decision_tree = DecisionTreeClassifier()
-decision_tree.fit(X_train,y_train)
-predictions_dt = decision_tree.predict(X_train)
-predictions_dt = decision_tree.predict(X_test)''')
-    st.text("Let's see how the decisiontree performed.  \nPrecision score: 0.6768480573562775  \nPrecision score: 0.10936865314551031")
-    st.text("The decisiontree algorithm has overfit the training set, reaching 68% precision, but on the test set it has only reached 10% precision.")
-    st.text("Let's see the suggested sports for some samples of athletes:  \ngenders = [0, 1]  \nages = [15, 30, 50]  \nheights = [150, 175, 200]  \nweights = [65, 80, 105]")
-    
-   
-
-#--------------------------------------------------------------------------------------------------------------------------------

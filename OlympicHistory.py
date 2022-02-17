@@ -106,7 +106,7 @@ if rad_navigation == "DATA EXPLORATION":
         ('Athlete', 'NOC', 'GDP', 'Population'))
     st.write('You are visualising data from the dataset:', option)
     if option == 'Athlete':
-        st.write(ath_events_ds)        
+        st.write(ath_events_ds.head(30))        
         st.subheader("NaN VALUES")
         st.text("Let's see if there are some NaN entries")
         st.write(show_nulls(ath_events_ds))
@@ -119,15 +119,15 @@ if rad_navigation == "DATA EXPLORATION":
         st.pyplot(fig)
         st.text("There is a strong correlation between height and weight (equals to 0.8) and a discrete correlation between weight and age (equals to 0.21).")
     if option == 'NOC':
-        st.write(noc_regions_ds)
+        st.write(noc_regions_ds.head(30))
         st.subheader("NaN VALUES")
         st.write(show_nulls(noc_regions_ds))
     if option == 'GDP':
-        st.write(gdp_ds)
+        st.write(gdp_ds.head(30))
         st.subheader("NaN VALUES")
         st.write(show_nulls(gdp_ds))
     if option == 'Population':
-        st.write(population_ds)
+        st.write(population_ds.head(30))
         st.subheader("NaN VALUES")
         st.write(show_nulls(population_ds))
 #--------------------------------------------------------------------------------------------------------------------------------
@@ -747,9 +747,9 @@ def sport_suggestion(gender, age, height, weight):
     test = np.array([gender, age, height, weight], np.float64)
     test = test.reshape(1, -1)
     dt_prediction = decision_tree.predict(test)
-    toprint = "Suggested sport is: "
+    toprint = "predicted sport is: "
     toprint = toprint + sports[dt_prediction]
-    print(toprint[0], file = sourceFile)
+    print(toprint[0], '  \n', file = sourceFile, )
 
 genders = [0, 1]
 ages = [15, 30, 50]
@@ -759,7 +759,7 @@ for gender in genders:
     for age in ages:
         for height in heights:
             for weight in weights:                
-                print('For a', age, 'year old', 'male' if gender else 'female', height, 'cm and', weight, 'kg:',  file = sourceFile)
+                print('For a', age, 'year old', 'male' if gender else 'female', height, 'cm and', weight, 'kg,',  file = sourceFile)
                 sport_suggestion(gender, age, height, weight)
 sourceFile.close()
 

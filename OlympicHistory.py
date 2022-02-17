@@ -43,7 +43,7 @@ st.image(img_h)
 st.title("THE OLYMPIC GAMES")
 
 
-rad_navigation = st.sidebar.radio("Navigation", ["INITIAL SETUP","DATA EXPLORATION", "DATA WRANGLING", "DATA ANALYSIS", "PREDICTION PRE-PROCESSING", "DECISIONTREE CLASSIFICATION"])
+rad_navigation = st.sidebar.radio("Navigation", ["INITIAL SETUP","DATA EXPLORATION", "DATA WRANGLING", "DATA ANALYSIS", "PREDICTION"])
 
 if rad_navigation == "INITIAL SETUP":
     st.header("INITIAL SETUP")
@@ -52,7 +52,7 @@ if rad_navigation == "INITIAL SETUP":
 import numpy as np
 import seaborn as sns
 from matplotlib import pyplot as plt''', language="python") 
-    st.write("The dataset of interest are the following:  \n* Olympics History and NOC [link](https://www.kaggle.com/heesoo37/120-years-of-olympic-history-athletes-and-results)  \n* GDP [link](https://www.kaggle.com/chadalee/country-wise-gdp-data)  \n* Population [link](https://www.kaggle.com/centurion1986/countries-population)")   
+    st.write("The datasets of interest are the following:  \n* Olympics History and NOC [link](https://www.kaggle.com/heesoo37/120-years-of-olympic-history-athletes-and-results)  \n* GDP [link](https://www.kaggle.com/chadalee/country-wise-gdp-data)  \n* Population [link](https://www.kaggle.com/centurion1986/countries-population)")   
     
     st.code('''
 ath_events_ds = pd.read_csv (r'Datasets\\athlete_events.csv')
@@ -100,7 +100,7 @@ ax = sns.heatmap(data=correlation, cmap="YlGnBu", annot=True, ax=ax)
 # STREAMLIT ---------------------------------------------------------------------------------------------------------------------
 if rad_navigation == "DATA EXPLORATION":
     st.header("DATA EXPLORATION")
-    st.text("As second step, I have explored the datasets previously imported to find some correaltion, some unexpected info and NaN values.")
+    st.text("As second step, I have explored the datasets previously imported to find some correlations, some unexpected info and NaN values.")
     option = st.selectbox(
         'Select wich datset to view',
         ('Athlete', 'NOC', 'GDP', 'Population'))
@@ -110,7 +110,7 @@ if rad_navigation == "DATA EXPLORATION":
         st.subheader("NaN VALUES")
         st.text("Let's see if there are some NaN entries")
         st.write(show_nulls(ath_events_ds))
-        st.text("There are strange NaN values in the medal column. I suppose this is due to the fact that not any athlete wins a medal.")   
+        st.text("There are strange NaN values in the medal column. I suppose this is due to the fact that not every athlete wins a medal.")   
         st.subheader("MEAN VALUES")
         st.text("  \nLet's see the average values for height, weight and age of athletes grouped by gender")
         st.write(ath_mean)
@@ -279,16 +279,16 @@ if rad_navigation == "DATA WRANGLING":
     st.text("I have decided to replace the NaN values of the medal column with a text saying \"NoMedal\"")
     st.code('''ath_events_ds['Medal'] = ath_events_ds['Medal'].replace(np.nan, 'NoMedal')''')
     st.subheader("WRANGLING ON NOC_DS")
-    st.text("Firstly, I have removed the notes column, which contains many NaN values and seems useless.")
+    st.text("Firstly, I have removed the notes column, which contains many NaN values and it seemed useless.")
     st.code('''noc_regions_ds.drop('notes', axis=1, inplace = True)''')    
-    st.text("  \nSecondly, I want to check if there is a unique Team for each NOC.  \nTo do this I have removed duplicate values, and checked how many teams are related to a NOC.")
+    st.text("  \nSecondly, I wanted to check if there is a unique Team for each NOC.  \nTo do this I have removed duplicate values, and checked how many teams are related to a NOC.")
     st.code('''check_NOC_unique = check_NOC.drop_duplicates()
 check_NOC_unique['Team'].value_counts()''')
     st.text("  \nThirdly, I have merged the ath_event_ds with the noc_regions to create unique relations between team and NOC.")
     st.code('''ath_events_ds_merge = ath_events_ds.merge(noc_regions_ds, left_on = 'NOC', right_on = 'NOC', how = 'left')''')
-    st.text("  \nLet's check if there are still some NOC that do not match any Team in the newly reated ds.")
+    st.text("  \nLet's check if there are still some NOC that do not match any Team in the newly created ds.")
     st.write(ath_events_ds_merge.loc[ath_events_ds_merge_is_null, ['NOC', 'Team']].drop_duplicates())
-    st.text("  \nI will add them manually in the ds.")
+    st.text("  \nI added them manually in the ds.")
     st.code('''ath_events_ds_merge['region'] = np.where(ath_events_ds_merge['NOC']=='SGP', 'Singapore', ath_events_ds_merge['region'])
 ath_events_ds_merge['region'] = np.where(ath_events_ds_merge['NOC']=='ROT', 'Refugee Olympic Athletes', ath_events_ds_merge['region'])
 ath_events_ds_merge['region'] = np.where(ath_events_ds_merge['NOC']=='UNK', 'Unknown', ath_events_ds_merge['region'])
@@ -296,7 +296,7 @@ ath_events_ds_merge['region'] = np.where(ath_events_ds_merge['NOC']=='TUV', 'Tuv
 
 ath_events_ds_merge.drop('Team', axis = 1, inplace = True)
 ath_events_ds_merge.rename(columns = {'region': 'Team'}, inplace = True)''')
-    st.text("  \nCheck the ds after the first two \"wrangling\" steps.")
+    st.text("  \nLet's check the ds after the first two \"wrangling\" steps.")
     st.write(ath_events_ds_merge)
     st.subheader("WRANGLING ON POPULATION_DS")
     st.text("Firstly, I have removed the useless Indicator Name and Code columns. Then I have performed an unpivoting operation to make the years column become row values.")
@@ -313,11 +313,11 @@ gdp_ds = pd.melt(gdp_ds, id_vars = ['Country Name', 'Country Code'], var_name = 
 gdp_ds['Year'] = pd.to_numeric(gdp_ds['Year'])
 
 olympic_history_ds = ath_events_ds_merge_country_pop.merge(gdp_ds, left_on = ['Country Code', 'Year'], right_on= ['Country Code', 'Year'], how = 'left')''')
-    st.text("  \nSecondly, by checking the ds, there are a lot of null values in the year, gdp and population column. By performing some exploration it resulted that the year span of the ds merged together do not match.")
+    st.text("  \nSecondly, by checking the ds, there were a lot of null values in the year, gdp and population column. By performing some exploration it resulted that the year span of the ds merged together do not match.")
     st.text("So I have decided to reduce the year span from 1960 to 2016")
     st.code('''olympic_history_ds = olympic_history_ds.loc[(olympic_history_ds['Year'] > 1960) & (olympic_history_ds['Year'] < 2016), :]''')
     st.subheader("FINALLY")
-    st.text("Let's see the dataset that I have used to performed the analysis step.")
+    st.text("Let's see the final dataset.")
     st.write(olympic_history_ds)
 #--------------------------------------------------------------------------------------------------------------------------------
 
@@ -524,7 +524,7 @@ ax.set_title('Gold, silver, bronze distribution by nations', fontsize=16)
 # STREAMLIT ---------------------------------------------------------------------------------------------------------------------
 if rad_navigation == "DATA ANALYSIS":
     st.header("DATA ANALYSIS AND VISUALISATION")
-    st.subheader("As fourth step, I have performed some data analysis and I propose some graphical visualisation to understand better the data.")
+    st.subheader("As fourth step, I have performed some data analysis and I propose some graphical visualisations to understand better the data.")
 
     st.subheader("AGE DISTRIBUTION")
     st.text("First of all, I have removed NaN values.")
@@ -533,7 +533,7 @@ if rad_navigation == "DATA ANALYSIS":
     #st.pyplot(age_dis)
     st.pyplot(fig_age_m_f)
     st.text("The graph shows that male athletes are usually elder than female athletes.")
-    st.text("Let's see who are the oldest and youngest athletes.")
+    st.text("Let's see who resulted the oldest and youngest athletes.")
     st.text("OLDEST")
     st.write(oldest)
     st.text("YOUNGEST")
@@ -542,7 +542,7 @@ if rad_navigation == "DATA ANALYSIS":
     st.code('''olympic_history_ds_elder = olympic_history_ds['Sport'][olympic_history_ds['Age'] > 60]''')
     st.pyplot(fig_elder)
     st.text('As expected elder athletes practice sports that do not require resistance or strength.')
-    st.text("It is also interesting to see the average age of medallist athletes.  \nLet's discover it by creating a pivot table with Medal and Age index columns.")
+    st.text("It is also interesting to see the average age of medallist athletes.  \nI have discovered it by creating a pivot table with Medal and Age index columns.")
     st.code('''olympic_history_ds_medallists_age = olympic_history_ds.pivot_table(olympic_history_ds, index=['Age','Medal'], aggfunc=np.mean).reset_index()[['Year','Medal','Age']]
 olympic_history_ds_medallists_age = olympic_history_ds_medallists_age.pivot("Medal", "Year", "Age")
 olympic_history_ds_medallists_age = olympic_history_ds_medallists_age.reindex(["Gold","Silver","Bronze"])''')
@@ -567,7 +567,7 @@ olympic_history_ds_gender.columns = ['Year','Sex','Count']''')
     st.write('There are: ', olympic_history_ds_women_wl, ' practicing this sport.')
 
     st.subheader("MEDALS DISTRIBUTION")
-    st.text("In order to get correct information about medals won, I have to take into consideration team events and single events, to avoid duplicate counting.")
+    st.text("In order to get correct information about medals won, I have taken into consideration team events and single events, to avoid duplicate counting.")
     st.text("Firstly, I have created an index column containing 1 for a won medal and 0 otherwise.")
     st.code('''olympic_history_ds['Medal_i'] = np.where(olympic_history_ds.loc[:,'Medal'] == 'NoMedal', 0, 1)''')
     st.text("Secondly, I have identified which are the team events of the olympics.")
@@ -587,7 +587,7 @@ olympic_history_ds['Event_cat'] = olympic_history_ds['S_event'] + olympic_histor
     st.text("Then, I have grouped data by year, team, event and medal.")
     st.code('''olympic_history_ds_nation = olympic_history_ds.groupby(['Year', 'Team', 'Event', 'Medal'])[['Medal_i', 'Event_cat']].agg('sum').reset_index()
 olympic_history_ds_nation['Medal_i'] = olympic_history_ds_nation['Medal_i']/olympic_history_ds_nation['Event_cat']''')
-    st.text("And then, grouped again by year and team to sum the won medals.  \nFinally, I have created a pivot table to show the top 10 nations by medals won.")
+    st.text("And then, grouped again by year and team to sum the medals won.  \nFinally, I have created a pivot table to show the top 10 nations by medals won.")
     st.code('''medagliere = olympic_history_ds_nation.groupby(['Year','Team'])['Medal_i'].agg('sum').reset_index()
 medagliere_piv = pd.pivot_table(medagliere, index = 'Team', columns = 'Year', values = 'Medal_i', aggfunc = 'sum', margins = True)''')
     st.text("Let's see which are the top 10 powers of the Olympic Games.")
@@ -595,9 +595,9 @@ medagliere_piv = pd.pivot_table(medagliere, index = 'Team', columns = 'Year', va
     st.text("Let's see the top 6 nations plotted on a graph.")
     st.pyplot(fig_medagliere)
     st.text("We can see that are some drops in the curve from USA and Russia, this is due to historical events, like disqualifications and boicots. ")
-    st.text("Lastly, I want to see the distribution of gold, silver and bronze medals for the top 6 nations.  \nSo, I have created a mask to map them.")
+    st.text("Lastly, I wanted to see the distribution of gold, silver and bronze medals for the top 6 nations.  \nSo, I have created a mask to map them.")
     st.code('''top6_nations_mask = olympic_history_ds_nation['Team'].map(lambda x: x in top6_nations)''')
-    st.text("Then, I have crated a pivot table indexed on Team  with Medal as column.")
+    st.text("Then, I have created a pivot table indexed on Team with Medal as column.")
     st.code('''medagliere_medals = pd.pivot_table(olympic_history_ds_nation[top6_nations_mask], index = ['Team'], columns = 'Medal', values = 'Medal_i', aggfunc = 'sum', fill_value = 0).drop('NoMedal', axis = 1)''')
     st.text("Let's see the distribution on a bar chart.")
     st.set_option('deprecation.showPyplotGlobalUse', False)
@@ -605,8 +605,8 @@ medagliere_piv = pd.pivot_table(medagliere, index = 'Team', columns = 'Year', va
     st.text("From the graph we can see that USA and Russia have quite a distance from the other top nations in terms of medals won.")
     
     st.subheader("MEDALS DISTRIBUTION BASED ON GDP")
-    st.text("I suppose the number of medals won by the 6 best nations is strictly related to the GDP of that nation.")
-    st.text("To verify this hypothesis, let's see the correlation between GDP and the sum of all medals won.")
+    st.text("I have supposed that the number of medals won by the 6 best nations is strictly related to the GDP of that nation.")
+    st.text("To verify this hypothesis, I have looked for correlation between GDP and the sum of all medals won.")
     st.code('''medal_i_mask = medagliere_gdp['Medal_i'] > 0
 correlation = medagliere_gdp.loc[medal_i_mask, ['GDP', 'Medal_i']].corr()['Medal_i'][0]''')
     st.write(correlation_gdp_medals)
@@ -671,11 +671,11 @@ fig_pred = sns.pairplot(olympic_history_ds_prediction, palette='husl', hue='Sex'
 #--------------------------------------------------------------------------------------------------------------------------------
 # STREAMLIT ---------------------------------------------------------------------------------------------------------------------
 # Put this piece of code before the decision tree to make the app load the initial information faster
-if rad_navigation == "PREDICTION PRE-PROCESSING":
-    st.header("PRE-PROCESSING for PREDICTION")
+if rad_navigation == "PREDICTION":
+    st.header("DECISIONTREE CLASSIFIER FOR PREDICTION")
     st.subheader("As last step, I have used the decisiontree algorithm to try to predict wich sport fits best for a person based on gender, age, height and weight.")
     st.subheader('DATA PREPARATION')
-    st.text("Fisrtly, I have imported the sklearn packages.")
+    st.text("Firstly, I have imported the sklearn packages.")
     st.code('''from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
 from sklearn import tree
@@ -697,25 +697,21 @@ olympic_history_ds_prediction['Sport'] = label_enc2.fit_transform(olympic_histor
     st.text("Let's see data correlation using pairplot.")
     st.pyplot(fig_pred)
     st.text("The graph shows that there are some trends between sports, but there is also a very large overlap, particularly in the average age, height, and weight of athletes.")
-
-#--------------------------------------------------------------------------------------------------------------------------------
-# STREAMLIT ---------------------------------------------------------------------------------------------------------------------
-if rad_navigation == "DECISIONTREE CLASSIFICATION":
     st.subheader('CLASSIFICATION')
     st.text("I have started the project thinking it would be an easy task to classify athletes based on gender, heigh, weight and age.  \nBut this is true only for emblematic sports like weightlifting.")
-    st.text("  \nHowever I have tried the classification anyway. So as first step I have trained the model and splitted data 70% on train and 30% on test.")
+    st.text("  \nHowever I have tried the classification anyway.  \nSo, as first step, I have trained the model and splitted data 70% on train and 30% on test.")
     st.code('''X = olympic_history_ds_prediction.drop(columns=['Sport'])
 y = olympic_history_ds_prediction['Sport']
 X_train, X_test, y_train, y_test = train_test_split(X.values, y.values, test_size=0.3)''')
-    st.text("Then I have applied the decisiontree algorithm.")
+    st.text("Then, I have applied the decisiontree algorithm.")
     st.code('''decision_tree = DecisionTreeClassifier()
 decision_tree.fit(X_train,y_train)
 predictions_dt = decision_tree.predict(X_train)
 predictions_dt = decision_tree.predict(X_test)''')
     st.text("Let's see how the decisiontree performed.  \nPrecision score: 0.6768480573562775  \nPrecision score: 0.10936865314551031")
-    st.text("The decisiontree algorithm has overfit the training set, reaching 68% precision, but on the test set it has only reached 10% precision.")
-    st.text("Samples of athletes:  \ngenders = [0, 1]  \nages = [15, 30, 50]  \nheights = [150, 175, 200]  \nweights = [65, 80, 105].  \nTo see the predicted sports open the link below.")
-    st.write("Predicted sports: [link](https://www.kaggle.com/heesoo37/120-years-of-olympic-history-athletes-and-results)")
+    st.text("The decisiontree algorithm is overfitted: the training set reached 68% precision. The test set only reached 10% precision.")
+    st.text("I have chosen the following values for the prediction:  \nGender: 0 for female, 1 for male  \nAge: 15, 30, 50  \nHeight: 150, 175, 200  \nWeight = 65, 80, 105.")
+    st.write("To see the predicted sports open the following link [link](https://github.com/GiadaPa/DS_ProgrammingProject/blob/main/Sport_Predictions.txt)")
 
 #--------------------------------------------------------------------------------------------------------------------------------   
 

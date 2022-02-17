@@ -3,7 +3,7 @@ Suggested sport is: Volleyball
 For a 15 year old female 150 cm and 80 kg:
 Suggested sport is: Volleyball
 For a 15 year old female 150 cm and 105 kg:
-Suggested sport is: Volleyball
+Suggested sport is: Softball
 For a 15 year old female 175 cm and 65 kg:
 Suggested sport is: Volleyball
 For a 15 year old female 175 cm and 80 kg:
@@ -11,15 +11,15 @@ Suggested sport is: Volleyball
 For a 15 year old female 175 cm and 105 kg:
 Suggested sport is: Softball
 For a 15 year old female 200 cm and 65 kg:
-Suggested sport is: Judo
+Suggested sport is: Volleyball
 For a 15 year old female 200 cm and 80 kg:
-Suggested sport is: Athletics
+Suggested sport is: Volleyball
 For a 15 year old female 200 cm and 105 kg:
-Suggested sport is: Athletics
+Suggested sport is: Volleyball
 For a 30 year old female 150 cm and 65 kg:
 Suggested sport is: Taekwondo
 For a 30 year old female 150 cm and 80 kg:
-Suggested sport is: Judo
+Suggested sport is: Boxing
 For a 30 year old female 150 cm and 105 kg:
 Suggested sport is: Water Polo
 For a 30 year old female 175 cm and 65 kg:
@@ -27,53 +27,53 @@ Suggested sport is: Athletics
 For a 30 year old female 175 cm and 80 kg:
 Suggested sport is: Judo
 For a 30 year old female 175 cm and 105 kg:
-Suggested sport is: Archery
+Suggested sport is: Water Polo
 For a 30 year old female 200 cm and 65 kg:
-Suggested sport is: Archery
+Suggested sport is: Athletics
 For a 30 year old female 200 cm and 80 kg:
 Suggested sport is: Rhythmic Gymnastics
 For a 30 year old female 200 cm and 105 kg:
-Suggested sport is: Athletics
+Suggested sport is: Canoeing
 For a 50 year old female 150 cm and 65 kg:
-Suggested sport is: Taekwondo
-For a 50 year old female 150 cm and 80 kg:
-Suggested sport is: Hockey
-For a 50 year old female 150 cm and 105 kg:
 Suggested sport is: Softball
+For a 50 year old female 150 cm and 80 kg:
+Suggested sport is: Judo
+For a 50 year old female 150 cm and 105 kg:
+Suggested sport is: Water Polo
 For a 50 year old female 175 cm and 65 kg:
 Suggested sport is: Taekwondo
 For a 50 year old female 175 cm and 80 kg:
-Suggested sport is: Judo
+Suggested sport is: Football
 For a 50 year old female 175 cm and 105 kg:
 Suggested sport is: Basketball
 For a 50 year old female 200 cm and 65 kg:
-Suggested sport is: Judo
+Suggested sport is: Taekwondo
 For a 50 year old female 200 cm and 80 kg:
-Suggested sport is: Weightlifting
+Suggested sport is: Softball
 For a 50 year old female 200 cm and 105 kg:
-Suggested sport is: Rhythmic Gymnastics
+Suggested sport is: Canoeing
 For a 15 year old male 150 cm and 65 kg:
 Suggested sport is: Volleyball
 For a 15 year old male 150 cm and 80 kg:
-Suggested sport is: Volleyball
+Suggested sport is: Hockey
 For a 15 year old male 150 cm and 105 kg:
-Suggested sport is: Volleyball
+Suggested sport is: Softball
 For a 15 year old male 175 cm and 65 kg:
-Suggested sport is: Volleyball
+Suggested sport is: Shooting
 For a 15 year old male 175 cm and 80 kg:
-Suggested sport is: Volleyball
+Suggested sport is: Hockey
 For a 15 year old male 175 cm and 105 kg:
 Suggested sport is: Softball
 For a 15 year old male 200 cm and 65 kg:
-Suggested sport is: Modern Pentathlon
+Suggested sport is: Volleyball
 For a 15 year old male 200 cm and 80 kg:
-Suggested sport is: Modern Pentathlon
+Suggested sport is: Volleyball
 For a 15 year old male 200 cm and 105 kg:
-Suggested sport is: Athletics
+Suggested sport is: Volleyball
 For a 30 year old male 150 cm and 65 kg:
-Suggested sport is: Handball
+Suggested sport is: Diving
 For a 30 year old male 150 cm and 80 kg:
-Suggested sport is: Judo
+Suggested sport is: Water Polo
 For a 30 year old male 150 cm and 105 kg:
 Suggested sport is: Triathlon
 For a 30 year old male 175 cm and 65 kg:
@@ -83,26 +83,26 @@ Suggested sport is: Athletics
 For a 30 year old male 175 cm and 105 kg:
 Suggested sport is: Triathlon
 For a 30 year old male 200 cm and 65 kg:
-Suggested sport is: Weightlifting
+Suggested sport is: Judo
 For a 30 year old male 200 cm and 80 kg:
-Suggested sport is: Weightlifting
-For a 30 year old male 200 cm and 105 kg:
 Suggested sport is: Athletics
+For a 30 year old male 200 cm and 105 kg:
+Suggested sport is: Canoeing
 For a 50 year old male 150 cm and 65 kg:
 Suggested sport is: Softball
 For a 50 year old male 150 cm and 80 kg:
-Suggested sport is: Softball
+Suggested sport is: Weightlifting
 For a 50 year old male 150 cm and 105 kg:
-Suggested sport is: Softball
+Suggested sport is: Weightlifting
 For a 50 year old male 175 cm and 65 kg:
-Suggested sport is: Taekwondo
-For a 50 year old male 175 cm and 80 kg:
 Suggested sport is: Hockey
-For a 50 year old male 175 cm and 105 kg:
+For a 50 year old male 175 cm and 80 kg:
 Suggested sport is: Softball
+For a 50 year old male 175 cm and 105 kg:
+Suggested sport is: Hockey
 For a 50 year old male 200 cm and 65 kg:
-Suggested sport is: Judo
+Suggested sport is: Taekwondo
 For a 50 year old male 200 cm and 80 kg:
 Suggested sport is: Softball
 For a 50 year old male 200 cm and 105 kg:
-Suggested sport is: Rhythmic Gymnastics
+Suggested sport is: Canoeing

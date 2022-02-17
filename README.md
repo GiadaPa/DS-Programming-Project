@@ -59,3 +59,5 @@ This will open a browser with the project running.
 
 ## IMPORTANT
 Usually it takes 1 minute to load the content. Be patient and enjoy with the interactive parts! :) 
+<br>
+![Olympics logo](olympics.jpg)

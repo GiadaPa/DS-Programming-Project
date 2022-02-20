@@ -1,1 +1,162 @@
 For a 15 year old female 150 cm and 65 kg,
+predicted sport is: Judo   
+
+For a 15 year old female 150 cm and 80 kg,
+predicted sport is: Volleyball   
+
+For a 15 year old female 150 cm and 105 kg,
+predicted sport is: Softball   
+
+For a 15 year old female 175 cm and 65 kg,
+predicted sport is: Volleyball   
+
+For a 15 year old female 175 cm and 80 kg,
+predicted sport is: Hockey   
+
+For a 15 year old female 175 cm and 105 kg,
+predicted sport is: Softball   
+
+For a 15 year old female 200 cm and 65 kg,
+predicted sport is: Volleyball   
+
+For a 15 year old female 200 cm and 80 kg,
+predicted sport is: Volleyball   
+
+For a 15 year old female 200 cm and 105 kg,
+predicted sport is: Volleyball   
+
+For a 30 year old female 150 cm and 65 kg,
+predicted sport is: Judo   
+
+For a 30 year old female 150 cm and 80 kg,
+predicted sport is: Softball   
+
+For a 30 year old female 150 cm and 105 kg,
+predicted sport is: Water Polo   
+
+For a 30 year old female 175 cm and 65 kg,
+predicted sport is: Fencing   
+
+For a 30 year old female 175 cm and 80 kg,
+predicted sport is: Judo   
+
+For a 30 year old female 175 cm and 105 kg,
+predicted sport is: Judo   
+
+For a 30 year old female 200 cm and 65 kg,
+predicted sport is: Rhythmic Gymnastics   
+
+For a 30 year old female 200 cm and 80 kg,
+predicted sport is: Rhythmic Gymnastics   
+
+For a 30 year old female 200 cm and 105 kg,
+predicted sport is: Athletics   
+
+For a 50 year old female 150 cm and 65 kg,
+predicted sport is: Softball   
+
+For a 50 year old female 150 cm and 80 kg,
+predicted sport is: Softball   
+
+For a 50 year old female 150 cm and 105 kg,
+predicted sport is: Basketball   
+
+For a 50 year old female 175 cm and 65 kg,
+predicted sport is: Taekwondo   
+
+For a 50 year old female 175 cm and 80 kg,
+predicted sport is: Judo   
+
+For a 50 year old female 175 cm and 105 kg,
+predicted sport is: Basketball   
+
+For a 50 year old female 200 cm and 65 kg,
+predicted sport is: Taekwondo   
+
+For a 50 year old female 200 cm and 80 kg,
+predicted sport is: Softball   
+
+For a 50 year old female 200 cm and 105 kg,
+predicted sport is: Weightlifting   
+
+For a 15 year old male 150 cm and 65 kg,
+predicted sport is: Triathlon   
+
+For a 15 year old male 150 cm and 80 kg,
+predicted sport is: Equestrianism   
+
+For a 15 year old male 150 cm and 105 kg,
+predicted sport is: Softball   
+
+For a 15 year old male 175 cm and 65 kg,
+predicted sport is: Volleyball   
+
+For a 15 year old male 175 cm and 80 kg,
+predicted sport is: Hockey   
+
+For a 15 year old male 175 cm and 105 kg,
+predicted sport is: Softball   
+
+For a 15 year old male 200 cm and 65 kg,
+predicted sport is: Volleyball   
+
+For a 15 year old male 200 cm and 80 kg,
+predicted sport is: Volleyball   
+
+For a 15 year old male 200 cm and 105 kg,
+predicted sport is: Volleyball   
+
+For a 30 year old male 150 cm and 65 kg,
+predicted sport is: Handball   
+
+For a 30 year old male 150 cm and 80 kg,
+predicted sport is: Shooting   
+
+For a 30 year old male 150 cm and 105 kg,
+predicted sport is: Triathlon   
+
+For a 30 year old male 175 cm and 65 kg,
+predicted sport is: Judo   
+
+For a 30 year old male 175 cm and 80 kg,
+predicted sport is: Athletics   
+
+For a 30 year old male 175 cm and 105 kg,
+predicted sport is: Triathlon   
+
+For a 30 year old male 200 cm and 65 kg,
+predicted sport is: Judo   
+
+For a 30 year old male 200 cm and 80 kg,
+predicted sport is: Rhythmic Gymnastics   
+
+For a 30 year old male 200 cm and 105 kg,
+predicted sport is: Athletics   
+
+For a 50 year old male 150 cm and 65 kg,
+predicted sport is: Softball   
+
+For a 50 year old male 150 cm and 80 kg,
+predicted sport is: Softball   
+
+For a 50 year old male 150 cm and 105 kg,
+predicted sport is: Basketball   
+
+For a 50 year old male 175 cm and 65 kg,
+predicted sport is: Taekwondo   
+
+For a 50 year old male 175 cm and 80 kg,
+predicted sport is: Hockey   
+
+For a 50 year old male 175 cm and 105 kg,
+predicted sport is: Softball   
+
+For a 50 year old male 200 cm and 65 kg,
+predicted sport is: Taekwondo   
+
+For a 50 year old male 200 cm and 80 kg,
+predicted sport is: Softball   
+
+For a 50 year old male 200 cm and 105 kg,
+predicted sport is: Weightlifting   
+
